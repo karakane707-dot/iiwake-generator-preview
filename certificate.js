@@ -28,8 +28,9 @@ function brush(ctx,x,y,w,h){
  ctx.fillStyle='#f8f7f2';for(const p of [[[51,342],[90,300],[124,289],[106,309]],[[462,139],[478,116],[471,148],[451,175]]]){ctx.beginPath();p.forEach(([a,b],i)=>i?ctx.lineTo(a,b):ctx.moveTo(a,b));ctx.closePath();ctx.fill();}ctx.restore();
 }
 function photo(ctx,img,x,y,w,h){
- // 全体を見せる。縦横比を保ち、余白で収めるため商品を切り落とさない。
- ctx.fillStyle='#e5e2da';ctx.fillRect(x,y,w,h);const s=Math.min(w/img.width,h/img.height);ctx.drawImage(img,x+(w-img.width*s)/2,y+(h-img.height*s)/2,img.width*s,img.height*s);
+ // cover：中央から同じ比率の領域を切り出し、枠を隙間なく満たす。
+ const scale=Math.max(w/img.width,h/img.height),sw=w/scale,sh=h/scale;
+ ctx.drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,x,y,w,h);
 }
 function layout(ctx,data){
  // 900×1600の論理座標を1.2倍して1080×1920pxに出力する。
