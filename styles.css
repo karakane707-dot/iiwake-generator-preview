@@ -7,3 +7,35 @@
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 #certificate-template{margin:8px 0 0}#certificate-canvas{display:block;width:100%;height:auto;margin:22px 0;background:#f8f7f2;border:1px solid var(--line)}
 #certificate-canvas[aria-busy=true]{opacity:.55}.export-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.export-actions .secondary{margin:0}.export-actions button{padding:13px 10px;font-size:13px}button:disabled{opacity:.45;cursor:wait}.save-panel{margin-top:18px;padding:16px;background:#edf2e9;border-radius:5px}.save-panel h3{font-size:16px;margin-top:0}#saved-image{display:block;width:100%;height:auto;margin-top:16px;-webkit-touch-callout:default;user-select:auto}.download-link{display:block;padding:12px;background:#355c48;color:white;text-align:center;border-radius:4px;text-decoration:none}.result-panel{position:static}@media(max-width:360px){.export-actions{grid-template-columns:1fr}}
+
+/* 第3段階：申告画面。認定書のcanvas描画には影響させない。 */
+:root{--paper:#f4f3ef;--ink:#141a2c;--muted:#646977;--line:#d9dbe0;--accent:#18274f}
+.site-header{position:static;background:#faf9f6}.brand{font-weight:800}.stage{letter-spacing:.12em}
+.intro{position:relative;border-bottom:2px solid var(--ink);margin-bottom:28px;padding-bottom:30px}
+.bureau-label{font-size:10px;letter-spacing:.14em;font-weight:700;margin:0 0 28px;color:var(--accent)}
+.intro h1{font-family:inherit;font-weight:900;letter-spacing:-.045em;line-height:1.3;font-size:clamp(29px,5.5vw,56px)}
+.eyebrow{border-left:3px solid var(--accent);padding-left:10px}
+.panel{background:#fffefa;border-radius:0;border-top:3px solid var(--ink)}
+.section-title{align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:20px;gap:16px}
+.section-title>span{font-family:inherit;font-weight:900;font-size:36px;line-height:1;color:var(--accent);letter-spacing:-.06em}.section-title h2{padding-top:6px;font-weight:800}
+form>label{margin-top:28px}input:not([type=checkbox]),select,textarea{border-radius:0;border-color:var(--line);background-color:#fafaf8;background-image:linear-gradient(var(--accent),var(--accent));background-repeat:no-repeat;background-size:0 2px;background-position:0 100%}
+input:focus,select:focus,textarea:focus{background-size:100% 2px}
+.primary,.secondary{border-radius:0;font-weight:700}.primary:hover{background-color:#253966}.primary:active,.secondary:active{filter:brightness(.92)}
+#generate{min-height:60px;background-image:linear-gradient(165deg,transparent 0 38%,#355389 40% 52%,#0e1939 54% 72%,transparent 74%);background-size:250% 100%;background-position:0 0}
+.reason-group{border-radius:0}.reason-group-toggle{background:#f5f5f2}.reason-group-toggle[aria-expanded=true]{background:#e9edf5}
+.reason-chip{border-color:#bbc5d8;background:#edf0f7;color:var(--accent);border-radius:3px}.reason-chip:hover{background:#e1e7f3}
+.reason-group-panel{overflow:hidden}.reason-group-panel .reason-option:has(input:checked){background:#e9edf5;border-color:var(--accent)}
+.reason-option{border-radius:2px}.upload-box{border-radius:0;background:#f6f6f2}.upload-box input::file-selector-button{background:#e7ebf3;min-height:44px}.empty-state>span{color:var(--accent)}
+.edit-toggle{display:flex;justify-content:space-between;gap:12px;align-items:center;width:100%;min-height:52px;padding:12px 0;background:none;border:0;border-bottom:1px solid var(--line);color:var(--accent);font-weight:700;text-align:left;font-size:14px}
+.edit-toggle span{font-size:22px}.edit-toggle[aria-expanded=true] span{transform:rotate(45deg)}
+#edit-panel{overflow:hidden;padding-top:14px}#editable-text{display:block}.preview-badge,.save-panel{background:#e9edf5}.download-link{background:var(--accent)}
+#certificate-canvas{scroll-margin-top:20px;scroll-margin-top:calc(20px + env(safe-area-inset-top,0px))}
+@media(prefers-reduced-motion:no-preference){
+ input,select,textarea{transition:background-size .18s ease-out}
+ .reason-option{transition:background-color .15s,border-color .15s}
+ .reason-option:has(input:checked){animation:reason-select .18s ease-out}
+ .reason-group-icon,.edit-toggle span{transition:transform .18s ease-out}
+ @keyframes reason-select{50%{transform:translateX(3px)}100%{transform:translateX(0)}}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media(max-width:599px){.site-header{padding:18px 16px}.intro{padding-top:32px}.bureau-label{font-size:9px}.section-title h2{font-size:16px}.reason-toolbar{gap:10px}.reason-group-toggle{min-height:54px}.panel{padding:24px 16px}.brand{font-size:14px}.stage{font-size:8px}}

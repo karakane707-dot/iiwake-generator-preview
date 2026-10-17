@@ -18,6 +18,7 @@ async function draw(version){
   if(version!==revision)return;
   png=blob;pngUrl=URL.createObjectURL(blob);$('save-png').disabled=false;$('share-png').disabled=sharing;
   $('certificate-canvas').removeAttribute('aria-busy');status('認定書を更新しました。PNG保存・共有ができます。');
+  root.IiwakeCertificateUI.onReady?.();
  }catch(error){if(version!==revision)return;$('certificate-canvas').removeAttribute('aria-busy');status(error.message||'画像を作成できませんでした。');}
 }
 function update(data){model={...data,template:$('certificate-template').value||'drawing'};revision++;invalidate();$('certificate-canvas').setAttribute('aria-busy','true');status('認定書を作成しています…');clearTimeout(timer);const version=revision;timer=setTimeout(()=>draw(version),80);}
