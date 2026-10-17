@@ -3,9 +3,9 @@
 const P=typeof module!=='undefined'&&module.exports?require('./phrases.js'):root.IiwakePhrases;
 const pick=(list,rng)=>list[Math.min(list.length-1,Math.max(0,Math.floor(rng()*list.length)))];
 function parseAmount(value){
- const s=String(value).trim().replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/，/g,',');
- if(!/^(?:\d+|\d{1,3}(?:,\d{3})+)$/.test(s))return null;
- const n=Number(s.replace(/,/g,''));
+ const s=String(value);
+ if(!/^[0-9]+$/.test(s))return null;
+ const n=Number(s);
  return Number.isSafeInteger(n)&&n>=0&&n<=999999999999?n:null;
 }
 function validate(input){

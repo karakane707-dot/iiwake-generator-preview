@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="あなたの買い物に、もっともらしい理由を。架空の第三者機関が購入正当化認定書を発行します。"><title>言い訳ジェネレーター｜購入正当化認定書</title><link rel="stylesheet" href="styles.css"><script defer src="phrases.js"></script><script defer src="generator.js"></script><script defer src="certificate.js"></script><script defer src="certificate-ui.js"></script><script defer src="motion.js"></script><script defer src="app.js"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="あなたの買い物に、もっともらしい理由を。架空の第三者機関が購入正当化認定書を発行します。"><title>言い訳ジェネレーター｜購入正当化認定書</title><link rel="stylesheet" href="styles.css"><script defer src="phrases.js"></script><script defer src="generator.js"></script><script defer src="certificate.js"></script><script defer src="certificate-ui.js"></script><script defer src="motion.js"></script><script defer src="crop.js"></script><script defer src="app.js"></script></head>
 <body>
 <div id="review-effect" class="review-effect" hidden><section class="review-card" aria-label="認定処理の進行状況"><p class="review-title">審査中 <span id="review-percent">0%</span></p><progress id="review-progress" max="100" value="0" aria-label="認定処理の進行率"></progress><p id="review-detail" role="status">申告内容を確認中</p></section></div>
 <header class="site-header"><a href="#" class="brand">言い訳ジェネレーター<span>PURCHASE JUSTIFICATION OFFICE</span></a><span class="stage">TEST EDITION</span></header>
@@ -11,10 +11,10 @@
 <form id="purchase-form">
 <label for="category">商品分類 <span class="required">必須</span></label><select id="category" required></select>
 <label for="product">商品名 <span class="required">必須</span></label><input id="product" required maxlength="100" placeholder="例：ずっと気になっていた一鉢" autocomplete="off">
-<label for="amount">購入金額 <span class="required">必須</span></label><div class="amount-input"><input id="amount" type="text" inputmode="numeric" required maxlength="15" placeholder="例：12000" aria-describedby="amount-help"><span>円</span></div><p id="amount-help" class="help">0以上の整数で入力（カンマ・全角数字も可）</p>
+<label for="amount">購入金額 <span class="required">必須</span></label><div class="amount-input"><input id="amount" type="text" inputmode="numeric" pattern="[0-9]+" required maxlength="12" placeholder="例：12000" aria-describedby="amount-help amount-message"><span>円</span></div><p id="amount-help" class="help">半角数字のみで入力してください</p><p id="amount-message" class="message" role="status"></p>
 <fieldset><legend>購入理由 <span class="optional">最大3つ・任意</span></legend><div class="reason-toolbar"><span>当てはまる理由を選んでください</span><output id="reason-count" aria-live="polite">0 / 3</output></div><div id="selected-reasons" class="selected-reasons" role="group" aria-label="選択済みの購入理由。タップして解除"></div><div id="reasons" class="reason-groups"></div><p id="reason-message" class="help" aria-live="polite"></p></fieldset>
 <label for="recipient">言い訳する相手 <span class="optional">任意</span></label><select id="recipient"></select>
-<label for="photo">商品写真 <span class="optional">任意</span></label><div class="upload-box"><input id="photo" type="file" accept="image/*"><p class="help">写真はブラウザ内で処理し、外部へ送信しません。20MBまで。</p><div id="photo-wrap" hidden><img id="photo-preview" alt="選択した商品写真"><button id="remove-photo" type="button" class="text-button">写真を取り消す</button></div></div>
+<label for="photo">商品写真 <span class="optional">任意</span></label><div class="upload-box"><input id="photo" type="file" accept="image/*"><p class="help">写真はブラウザ内で処理し、外部へ送信しません。20MBまで。</p><div id="photo-wrap" hidden><img id="photo-preview" alt="選択した商品写真"><button id="recrop-photo" type="button" class="text-button" hidden>写真の構図を再編集</button><button id="remove-photo" type="button" class="text-button">写真を取り消す</button></div></div>
 <p id="form-message" class="message" role="status"></p><button id="generate" type="submit" class="primary">認定文章を生成する <span aria-hidden="true">↗</span></button>
 <p class="help">入力内容はこのページを閉じると失われます。</p>
 </form></section>
@@ -32,4 +32,6 @@
 <article id="certificate" class="certificate sr-only" aria-label="購入正当化認定書のテキスト"><p class="certificate-kicker">PURCHASE JUSTIFICATION</p><h2>購入正当化認定書</h2><div class="certificate-rule"></div><p id="cert-number"></p><p id="cert-reasons"></p><p id="cert-category" class="certificate-category"></p><h3 id="cert-product"></h3><p id="cert-amount" class="certificate-amount"></p><img id="cert-photo" alt="認定対象の商品写真" hidden><p id="cert-text" class="certificate-body"></p><footer><strong>購入正当化審査室</strong><span>架空の機関による、楽しむための認定書です。</span></footer></article>
 </div></section></div>
 <footer class="site-footer">これは買い物を楽しむためのフィクションです。<br>実在の機関による審査や、商品の価値を保証するものではありません。<span>写真・入力内容は外部へ送信しません。共有はご自身の操作で行います。</span></footer>
-</main></body></html>
+</main>
+<dialog id="crop-dialog" aria-labelledby="crop-title"><div class="crop-inner"><h2 id="crop-title">写真の構図を調整</h2><p class="help">写真を指で動かし、スライダーで拡大できます。枠内が認定書に使用されます。写真の端にはブラシが重なります。</p><canvas id="crop-canvas" width="860" height="730" tabindex="0" aria-label="写真の切り抜き枠。ドラッグまたは矢印キーで移動"></canvas><label for="crop-zoom">拡大率 <output id="crop-zoom-value">1.00倍</output></label><input id="crop-zoom" type="range" min="1" max="4" step="0.01" value="1"><p id="crop-message" class="help" role="status"></p><div class="crop-actions"><button id="crop-cancel" type="button" class="secondary">キャンセル</button><button id="crop-confirm" type="button" class="primary">決定</button></div></div></dialog>
+</body></html>
