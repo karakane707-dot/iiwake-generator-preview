@@ -32,6 +32,11 @@ function photo(ctx,img,x,y,w,h){
  const scale=Math.max(w/img.width,h/img.height),sw=w/scale,sh=h/scale;
  ctx.drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,x,y,w,h);
 }
+// 写真の四辺を箱として残さず、紙面の右端へ抜ける切り抜き形状。
+function photoMask(ctx,x,y,w,h){
+ const points=[[.34,0],[.68,.035],[1,.06],[1,.90],[.66,.96],[.4,1],[.09,.89],[.13,.84],[.19,.66],[0,.50],[.04,.45],[.14,.23],[.23,.16]];
+ ctx.beginPath();points.forEach(([a,b],i)=>i?ctx.lineTo(x+a*w,y+b*h):ctx.moveTo(x+a*w,y+b*h));ctx.closePath();
+}
 function layout(ctx,data){
  // 900×1600の論理座標を1.2倍して1080×1920pxに出力する。
  // 読める最小文字サイズで収まらなければ、内容を切らずに編集を依頼する。
@@ -39,7 +44,7 @@ function layout(ctx,data){
   for(const size of sizes){font(ctx,size,weight);const rows=wrap(ctx,text,width),lineHeight=Math.ceil(size*1.4);if(rows.length*lineHeight<=height)return {rows,size,lineHeight};}
   return null;
  }
- const product=fit(data.product,300,240,[28,26,24,22],800);
+ const product=fit(data.product,300,data.template==='drawing'?200:240,[28,26,24,22],800);
  if(!product){const e=Error('商品名が1枚に収まりません。商品名を短くして、再度生成してください。');e.code='LAYOUT_OVERFLOW';throw e;}
  const reasonY=790;
  font(ctx,24);const reasons=data.reasons.length?data.reasons:['理由の指定なし'];
@@ -67,19 +72,20 @@ function render(canvas,data,img=null){
  }
  ctx.fillStyle='#080808';lines(ctx,'購入正当化\n認定書。',60,155,750,76,86,900);
  font(ctx,20,700);ctx.fillText('CERTIFICATE OF JUSTIFICATION',64,340);
- if(img)photo(ctx,img,405,385,430,365);
+ if(img&&style==='drawing'){
+  ctx.save();photoMask(ctx,405,330,495,495*365/430);ctx.clip();photo(ctx,img,405,330,495,495*365/430);ctx.restore();
+ }else if(img)photo(ctx,img,405,385,430,365);
  else {ctx.strokeStyle='#b9b8af';ctx.lineWidth=1;ctx.strokeRect(420,395,400,345);cross(ctx,620,530,36);font(ctx,15,500);ctx.fillStyle='#555a62';ctx.fillText('THE VALUE IS IN YOUR REASONS.',450,640);}
  if(img&&style==='drawing'){
-  // 紙面の筆跡を写真の下端・右端へ重ね、写真を全体の構成につなぐ。
-  // 中央の被写体と左側の情報領域は覆わない。
-  ctx.save();ctx.beginPath();ctx.rect(405,385,445,390);ctx.clip();
-  brush(ctx,700,370,175,100);brush(ctx,530,713,330,72);ctx.restore();
-  ctx.fillStyle='#f8f7f2';ctx.fillRect(405,730,116,20);font(ctx,12,700);ctx.fillStyle='#17254a';ctx.fillText('PURCHASE / 01',412,733);
+  // 上部の大筆は写真の後ろへ消え、下部の筆跡は紙面から写真の前へ渡る。
+  // 小さな矩形ラベルや写真周囲の枠線は配置しない。
+  brush(ctx,410,688,470,88);
  }
  ctx.fillStyle='#111';font(ctx,17,700);ctx.fillText('ITEM / 購入品',64,390);
  font(ctx,l.product.size,800);l.product.rows.forEach((row,i)=>ctx.fillText(row,64,425+i*l.product.lineHeight));
- rule(ctx,64,683,44);font(ctx,17,700);ctx.fillText('PRICE / 購入金額',64,698);
- let priceSize=40;const price='¥'+data.amount.toLocaleString('ja-JP');font(ctx,priceSize,800);while(ctx.measureText(price).width>310&&priceSize>20){font(ctx,--priceSize,800);}ctx.fillText(price,64,726);
+ const priceY=style==='drawing'?640:683;
+ rule(ctx,64,priceY,44);font(ctx,17,700);ctx.fillText('PRICE / 購入金額',64,priceY+15);
+ let priceSize=40;const price='¥'+data.amount.toLocaleString('ja-JP');font(ctx,priceSize,800);while(ctx.measureText(price).width>310&&priceSize>20){font(ctx,--priceSize,800);}ctx.fillText(price,64,priceY+43);
  font(ctx,17,700);ctx.fillText('REASONS',64,l.reasonY);let ry=l.reasonY+32;
  l.reasons.forEach((r,i)=>{rule(ctx,64,ry,772);font(ctx,21,600);ctx.fillText(String(i+1).padStart(2,'0'),82,ry+10);lines(ctx,r,155,ry+9,650,24,30,500);ry+=l.reasonHeights[i];});rule(ctx,64,ry,772);
  ctx.fillStyle='#141414';font(ctx,17,700);ctx.fillText('JUSTIFICATION',64,l.bodyY-40);
@@ -88,5 +94,5 @@ function render(canvas,data,img=null){
  font(ctx,15);ctx.fillText('購入正当化審査室  /  架空の機関による、楽しむための認定書です。',64,foot+31);
  return {width:canvas.width,height:canvas.height,layout:l};
 }
-const api={templates,wrap,layout,render};root.IiwakeCertificate=api;if(typeof module!=='undefined')module.exports=api;
+const api={templates,wrap,layout,render,photoMask};root.IiwakeCertificate=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);
