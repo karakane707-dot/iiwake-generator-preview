@@ -69,6 +69,13 @@ function render(canvas,data,img=null){
  font(ctx,20,700);ctx.fillText('CERTIFICATE OF JUSTIFICATION',64,340);
  if(img)photo(ctx,img,405,385,430,365);
  else {ctx.strokeStyle='#b9b8af';ctx.lineWidth=1;ctx.strokeRect(420,395,400,345);cross(ctx,620,530,36);font(ctx,15,500);ctx.fillStyle='#555a62';ctx.fillText('THE VALUE IS IN YOUR REASONS.',450,640);}
+ if(img&&style==='drawing'){
+  // 紙面の筆跡を写真の下端・右端へ重ね、写真を全体の構成につなぐ。
+  // 中央の被写体と左側の情報領域は覆わない。
+  ctx.save();ctx.beginPath();ctx.rect(405,385,445,390);ctx.clip();
+  brush(ctx,700,370,175,100);brush(ctx,530,713,330,72);ctx.restore();
+  ctx.fillStyle='#f8f7f2';ctx.fillRect(405,730,116,20);font(ctx,12,700);ctx.fillStyle='#17254a';ctx.fillText('PURCHASE / 01',412,733);
+ }
  ctx.fillStyle='#111';font(ctx,17,700);ctx.fillText('ITEM / 購入品',64,390);
  font(ctx,l.product.size,800);l.product.rows.forEach((row,i)=>ctx.fillText(row,64,425+i*l.product.lineHeight));
  rule(ctx,64,683,44);font(ctx,17,700);ctx.fillText('PRICE / 購入金額',64,698);
