@@ -22,7 +22,7 @@ function disclosure(button,panel,open){
  button.setAttribute('aria-expanded',String(open));panel.inert=!open;
  if(open)panel.hidden=false;
  if(reducedMotion()||!panel.animate){panel.hidden=!open;return;}
- const motion=panel.animate([{height:height+'px',opacity:open?0.4:1},{height:(open?panel.scrollHeight:0)+'px',opacity:open?1:0}],{duration:180,easing:'ease-out'});
+ const motion=panel.animate([{height:height+'px',opacity:open?0.4:1},{height:(open?panel.scrollHeight:0)+'px',opacity:open?1:0}],{duration:320,easing:'ease-out'});
  panel._motion=motion;
  motion.onfinish=()=>{if(panel._motion!==motion)return;panel.hidden=!open;panel._motion=null;};
 }
@@ -35,13 +35,14 @@ $('edit-toggle').addEventListener('click',()=>disclosure($('edit-toggle'),$('edi
 let pendingPreview=false;
 globalThis.IiwakeCertificateUI.onReady=()=>{
  if(!pendingPreview)return;pendingPreview=false;
- const preview=$('certificate-canvas');preview.focus({preventScroll:true});
+ const preview=$('certificate-canvas');if(globalThis.IiwakeMotion){globalThis.IiwakeMotion.present(preview);return;}preview.focus({preventScroll:true});
  preview.scrollIntoView({block:'start',behavior:reducedMotion()?'auto':'smooth'});
 };
 function beginGeneration(){
  pendingPreview=true;
- if(!reducedMotion()&&$('generate').animate)$('generate').animate([{backgroundPosition:'100% 0'},{backgroundPosition:'0 0'}],{duration:360,easing:'ease-out'});
+ globalThis.IiwakeMotion?.begin();
 }
+let previousSelection=new Set();
 function updateSelection(){
  const selected=checked();
  $('reason-count').textContent=selected.length+' / 3';
@@ -59,7 +60,9 @@ function updateSelection(){
    else groupViews[groups.findIndex(group=>group.ids.includes(id))].button.focus();
   });
   $('selected-reasons').append(chip);
+  if(!previousSelection.has(id))globalThis.IiwakeMotion?.chip(chip);
  });
+ previousSelection=new Set(selected.map(box=>Number(box.value)));
  groupViews.forEach((view,i)=>{const count=groups[i].ids.filter(id=>reasonBoxes.get(id).checked).length;view.count.textContent=count?'選択 '+count:'';});
 }
 groups.forEach((group,index)=>{

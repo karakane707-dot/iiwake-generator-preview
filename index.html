@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="ja">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="あなたの買い物に、もっともらしい理由を。架空の第三者機関が購入正当化認定書を発行します。"><title>言い訳ジェネレーター｜購入正当化認定書</title><link rel="stylesheet" href="styles.css"><script defer src="phrases.js"></script><script defer src="generator.js"></script><script defer src="certificate.js"></script><script defer src="certificate-ui.js"></script><script defer src="app.js"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="あなたの買い物に、もっともらしい理由を。架空の第三者機関が購入正当化認定書を発行します。"><title>言い訳ジェネレーター｜購入正当化認定書</title><link rel="stylesheet" href="styles.css"><script defer src="phrases.js"></script><script defer src="generator.js"></script><script defer src="certificate.js"></script><script defer src="certificate-ui.js"></script><script defer src="motion.js"></script><script defer src="app.js"></script></head>
 <body>
+<div id="review-effect" class="review-effect" aria-hidden="true" hidden><div id="review-brush" class="review-brush"><span>審査中<span class="review-english">UNDER REVIEW</span></span></div></div>
 <header class="site-header"><a href="#" class="brand">言い訳ジェネレーター<span>PURCHASE JUSTIFICATION OFFICE</span></a><span class="stage">TEST EDITION</span></header>
 <main>
-<section class="intro"><p class="bureau-label">PURCHASE JUSTIFICATION BUREAU / 申告受付</p><p class="eyebrow">その買い物に、第三者の見解を。</p><h1>欲しかった。<br>それには、理由がある。</h1><p>あなたの買い物を、少し真面目に正当化。<br>架空の審査機関が「購入正当化認定書」を発行します。</p></section>
+<section class="intro"><p class="bureau-label">PURCHASE JUSTIFICATION BUREAU / 申告受付</p><p class="eyebrow">その買い物に、第三者の見解を。</p><h1><span class="hero-line"><span>欲しかった。</span></span><span class="hero-line"><span>それには、理由がある。</span></span></h1><span id="hero-brush" class="hero-brush" aria-hidden="true"></span><p>あなたの買い物を、少し真面目に正当化。<br>架空の審査機関が「購入正当化認定書」を発行します。</p></section>
 <div class="workspace">
-<section class="panel input-panel" aria-labelledby="input-heading"><div class="section-title"><span>01</span><h2 id="input-heading">購入内容を申告する</h2></div>
+<section class="panel input-panel" aria-labelledby="input-heading"><div class="section-title"><i class="section-reveal-line" aria-hidden="true"></i><span>01</span><h2 id="input-heading">購入内容を申告する</h2></div>
 <form id="purchase-form">
 <label for="category">商品分類 <span class="required">必須</span></label><select id="category" required></select>
 <label for="product">商品名 <span class="required">必須</span></label><input id="product" required maxlength="100" placeholder="例：ずっと気になっていた一鉢" autocomplete="off">
@@ -17,7 +18,7 @@
 <p id="form-message" class="message" role="status"></p><button id="generate" type="submit" class="primary">認定文章を生成する <span aria-hidden="true">↗</span></button>
 <p class="help">入力内容はこのページを閉じると失われます。</p>
 </form></section>
-<section class="panel result-panel" aria-labelledby="result-heading"><div class="section-title"><span>02</span><h2 id="result-heading">認定内容を確認する</h2></div>
+<section class="panel result-panel" aria-labelledby="result-heading"><div class="section-title"><i class="section-reveal-line" aria-hidden="true"></i><span>02</span><h2 id="result-heading">認定内容を確認する</h2></div>
 <div id="empty-state" class="empty-state"><span aria-hidden="true">§</span><h3>審査の準備ができています。</h3><p>購入内容を入力して、<br>認定文章を生成してください。</p></div>
 <div id="result" hidden><button id="edit-toggle" class="edit-toggle" type="button" aria-expanded="false" aria-controls="edit-panel">認定文章を編集する <span aria-hidden="true">＋</span></button><div id="edit-panel" hidden><div class="editor-heading"><label for="editable-text">認定文章 <span class="optional">自由に編集できます</span></label><span id="edit-status" class="help" aria-live="polite"></span></div><textarea id="editable-text" rows="10" aria-describedby="edit-help"></textarea><p id="edit-help" class="help">編集内容は認定書・PNG保存・共有に反映されます。</p></div><button id="regenerate" type="button" class="secondary">同じ内容で、別の言い訳を考える <span aria-hidden="true">↻</span></button><p class="help">再生成には直前に申告した購入内容を使います。</p>
 <div class="preview-heading"><h3>購入正当化認定書</h3><span class="preview-badge">PNG / SHARE</span></div>
