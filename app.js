@@ -22,7 +22,7 @@ function disclosure(button,panel,open){
  button.setAttribute('aria-expanded',String(open));panel.inert=!open;
  if(open)panel.hidden=false;
  if(reducedMotion()||!panel.animate){panel.hidden=!open;return;}
- const motion=panel.animate([{height:height+'px',opacity:open?0.4:1},{height:(open?panel.scrollHeight:0)+'px',opacity:open?1:0}],{duration:320,easing:'ease-out'});
+ const motion=panel.animate([{height:height+'px',opacity:open?0.4:1},{height:(open?panel.scrollHeight:0)+'px',opacity:open?1:0}],{duration:500,easing:'cubic-bezier(.22,.61,.36,1)'});
  panel._motion=motion;
  motion.onfinish=()=>{if(panel._motion!==motion)return;panel.hidden=!open;panel._motion=null;};
 }
@@ -32,6 +32,7 @@ function toggleGroup(index){
 }
 $('edit-panel').hidden=true;
 $('edit-toggle').addEventListener('click',()=>disclosure($('edit-toggle'),$('edit-panel'),$('edit-toggle').getAttribute('aria-expanded')!=='true'));
+$('fix-overflow').addEventListener('click',()=>{disclosure($('edit-toggle'),$('edit-panel'),true);$('editable-text').focus();$('editable-text').scrollIntoView({block:'center',behavior:reducedMotion()?'auto':'smooth'});});
 let pendingPreview=false;
 globalThis.IiwakeCertificateUI.onReady=()=>{
  if(!pendingPreview)return;pendingPreview=false;

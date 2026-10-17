@@ -32,47 +32,51 @@ function photo(ctx,img,x,y,w,h){
  ctx.fillStyle='#e5e2da';ctx.fillRect(x,y,w,h);const s=Math.min(w/img.width,h/img.height);ctx.drawImage(img,x+(w-img.width*s)/2,y+(h-img.height*s)/2,img.width*s,img.height*s);
 }
 function layout(ctx,data){
- font(ctx,28,800);const productHeight=wrap(ctx,data.product,280).length*40;
- const infoBottom=525+productHeight+205;
- const reasonY=Math.max(1040,infoBottom+45);
+ // 900×1600の論理座標を1.2倍して1080×1920pxに出力する。
+ // 読める最小文字サイズで収まらなければ、内容を切らずに編集を依頼する。
+ function fit(text,width,height,sizes,weight=400){
+  for(const size of sizes){font(ctx,size,weight);const rows=wrap(ctx,text,width),lineHeight=Math.ceil(size*1.4);if(rows.length*lineHeight<=height)return {rows,size,lineHeight};}
+  return null;
+ }
+ const product=fit(data.product,300,240,[28,26,24,22],800);
+ if(!product){const e=Error('商品名が1枚に収まりません。商品名を短くして、再度生成してください。');e.code='LAYOUT_OVERFLOW';throw e;}
+ const reasonY=790;
  font(ctx,24);const reasons=data.reasons.length?data.reasons:['理由の指定なし'];
- const reasonHeights=reasons.map(r=>Math.max(62,wrap(ctx,r,650).length*34+24));
- const bodyY=reasonY+55+reasonHeights.reduce((a,b)=>a+b,0)+75;
- font(ctx,25);const bodyRows=wrap(ctx,data.text,756);
- const height=Math.max(1510,bodyY+bodyRows.length*43+160);
- return {reasonY,reasonHeights,reasons,bodyY,bodyRows,height};
+ const reasonHeights=reasons.map(r=>Math.max(48,wrap(ctx,r,650).length*30+18));
+ const bodyY=reasonY+32+reasonHeights.reduce((a,b)=>a+b,0)+64;
+ const body=fit(data.text,772,1480-bodyY,[26,24,22]);
+ if(!body){const e=Error('認定文章が1枚に収まりません。文章を短くするか、不要な改行を減らしてください。内容は保持しています。');e.code='LAYOUT_OVERFLOW';throw e;}
+ return {reasonY,reasonHeights,reasons,bodyY,bodyRows:body.rows,bodySize:body.size,bodyLineHeight:body.lineHeight,product,height:1600};
 }
 function render(canvas,data,img=null){
  let ctx=canvas.getContext('2d');if(!ctx)throw Error('このブラウザでは画像を作成できません。');
  const l=layout(ctx,data),width=900;
- // iPhoneのcanvasメモリを抑制。長文では高さを増やし解像度を調整。
- const scale=Math.min(1.5,12000/l.height,Math.sqrt(12000000/(width*l.height)));
- canvas.width=Math.ceil(width*scale);canvas.height=Math.ceil(l.height*scale);ctx=canvas.getContext('2d');ctx.scale(scale,scale);ctx.textBaseline='top';
+ const scale=1.2;
+ canvas.width=1080;canvas.height=1920;ctx=canvas.getContext('2d');ctx.scale(scale,scale);ctx.textBaseline='top';
  const style=templates.some(t=>t.id===data.template)?data.template:'drawing';
  ctx.fillStyle=style==='classic'?'#faf6eb':style==='minimal'?'#ffffff':'#f8f7f2';ctx.fillRect(0,0,width,l.height);
  if(style==='classic'){ctx.strokeStyle='#766849';ctx.lineWidth=3;ctx.strokeRect(24,24,852,l.height-48);ctx.lineWidth=1;ctx.strokeRect(33,33,834,l.height-66);}
  if(style==='official'){ctx.fillStyle='#e3e7e5';ctx.fillRect(50,135,800,240);}
- if(style==='editorial'){ctx.fillStyle='#152247';ctx.fillRect(0,0,20,l.height);ctx.fillStyle='#e5e4dd';ctx.fillRect(408,400,442,635);}
+ if(style==='editorial'){ctx.fillStyle='#152247';ctx.fillRect(0,0,20,l.height);ctx.fillStyle='#e5e4dd';ctx.fillRect(408,365,442,395);}
  ctx.fillStyle='#131313';lines(ctx,'PURCHASE\nJUSTIFICATION\nBUREAU',62,55,250,18,24,800);
  font(ctx,17,600);ctx.fillText('No. '+data.number,490,62);cross(ctx,822,69);
  if(style==='drawing'){
-  brush(ctx,350,164,500,430);
-  brush(ctx,437,813,430,220);
+  brush(ctx,350,130,500,380);
+  brush(ctx,437,640,430,150);
  }
- ctx.fillStyle='#080808';lines(ctx,'購入正当化\n認定書。',60,180,750,76,90,900);
- font(ctx,20,700);ctx.fillText('CERTIFICATE OF JUSTIFICATION',64,376);
- if(img)photo(ctx,img,390,420,445,590);
- else {ctx.strokeStyle='#b9b8af';ctx.lineWidth=1;ctx.strokeRect(410,462,400,500);cross(ctx,610,705,40);font(ctx,15,500);ctx.fillStyle='#555a62';ctx.fillText('THE VALUE IS IN YOUR REASONS.',447,795);}
- ctx.fillStyle='#111';font(ctx,17,700);ctx.fillText('ITEM',64,453);
- font(ctx,18,600);ctx.fillText('購入品',64,481);
- const productEnd=lines(ctx,data.product,64,525,280,28,40,800);
- rule(ctx,64,productEnd+22,44);font(ctx,17,700);ctx.fillText('PRICE',64,productEnd+50);font(ctx,18,500);ctx.fillText('購入金額',64,productEnd+79);
- let priceSize=44;const price='¥'+data.amount.toLocaleString('ja-JP');font(ctx,priceSize,800);while(ctx.measureText(price).width>292&&priceSize>23){font(ctx,--priceSize,800);}ctx.fillText(price,64,productEnd+115);
- font(ctx,17,700);ctx.fillText('REASONS',64,l.reasonY);let ry=l.reasonY+42;
- l.reasons.forEach((r,i)=>{rule(ctx,64,ry,772);font(ctx,21,600);ctx.fillText(String(i+1).padStart(2,'0'),82,ry+17);lines(ctx,r,155,ry+16,650,24,34,500);ry+=l.reasonHeights[i];});rule(ctx,64,ry,772);
+ ctx.fillStyle='#080808';lines(ctx,'購入正当化\n認定書。',60,155,750,76,86,900);
+ font(ctx,20,700);ctx.fillText('CERTIFICATE OF JUSTIFICATION',64,340);
+ if(img)photo(ctx,img,405,385,430,365);
+ else {ctx.strokeStyle='#b9b8af';ctx.lineWidth=1;ctx.strokeRect(420,395,400,345);cross(ctx,620,530,36);font(ctx,15,500);ctx.fillStyle='#555a62';ctx.fillText('THE VALUE IS IN YOUR REASONS.',450,640);}
+ ctx.fillStyle='#111';font(ctx,17,700);ctx.fillText('ITEM / 購入品',64,390);
+ font(ctx,l.product.size,800);l.product.rows.forEach((row,i)=>ctx.fillText(row,64,425+i*l.product.lineHeight));
+ rule(ctx,64,683,44);font(ctx,17,700);ctx.fillText('PRICE / 購入金額',64,698);
+ let priceSize=40;const price='¥'+data.amount.toLocaleString('ja-JP');font(ctx,priceSize,800);while(ctx.measureText(price).width>310&&priceSize>20){font(ctx,--priceSize,800);}ctx.fillText(price,64,726);
+ font(ctx,17,700);ctx.fillText('REASONS',64,l.reasonY);let ry=l.reasonY+32;
+ l.reasons.forEach((r,i)=>{rule(ctx,64,ry,772);font(ctx,21,600);ctx.fillText(String(i+1).padStart(2,'0'),82,ry+10);lines(ctx,r,155,ry+9,650,24,30,500);ry+=l.reasonHeights[i];});rule(ctx,64,ry,772);
  ctx.fillStyle='#141414';font(ctx,17,700);ctx.fillText('JUSTIFICATION',64,l.bodyY-40);
- font(ctx,25);l.bodyRows.forEach((row,i)=>ctx.fillText(row,64,l.bodyY+i*43));
- const foot=l.height-95;rule(ctx,64,foot-25,772);font(ctx,16,700);ctx.fillText('PURCHASE JUSTIFICATION BUREAU',64,foot);cross(ctx,816,foot+10,16);
+ font(ctx,l.bodySize);l.bodyRows.forEach((row,i)=>ctx.fillText(row,64,l.bodyY+i*l.bodyLineHeight));
+ const foot=1520;rule(ctx,64,foot-25,772);font(ctx,16,700);ctx.fillText('PURCHASE JUSTIFICATION BUREAU',64,foot);cross(ctx,816,foot+10,16);
  font(ctx,15);ctx.fillText('購入正当化審査室  /  架空の機関による、楽しむための認定書です。',64,foot+31);
  return {width:canvas.width,height:canvas.height,layout:l};
 }
