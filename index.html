@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="ja">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="あなたの買い物に、もっともらしい理由を。架空の第三者機関が購入正当化認定書を発行します。"><title>言い訳ジェネレーター｜購入正当化認定書</title><link rel="stylesheet" href="styles.css"><script defer src="phrases.js"></script><script defer src="generator.js"></script><script defer src="app.js"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="あなたの買い物に、もっともらしい理由を。架空の第三者機関が購入正当化認定書を発行します。"><title>言い訳ジェネレーター｜購入正当化認定書</title><link rel="stylesheet" href="styles.css"><script defer src="phrases.js"></script><script defer src="generator.js"></script><script defer src="certificate.js"></script><script defer src="certificate-ui.js"></script><script defer src="app.js"></script></head>
 <body>
-<header class="site-header"><a href="#" class="brand">言い訳ジェネレーター<span>PURCHASE JUSTIFICATION OFFICE</span></a><span class="stage">第1段階 / 試作版</span></header>
+<header class="site-header"><a href="#" class="brand">言い訳ジェネレーター<span>PURCHASE JUSTIFICATION OFFICE</span></a><span class="stage">TEST EDITION</span></header>
 <main>
 <section class="intro"><p class="eyebrow">その買い物に、第三者の見解を。</p><h1>欲しかった。<br>それには、理由がある。</h1><p>あなたの買い物を、少し真面目に正当化。<br>架空の審査機関が「購入正当化認定書」を発行します。</p></section>
 <div class="workspace">
@@ -20,8 +20,13 @@
 <section class="panel result-panel" aria-labelledby="result-heading"><div class="section-title"><span>02</span><h2 id="result-heading">認定内容を確認する</h2></div>
 <div id="empty-state" class="empty-state"><span aria-hidden="true">§</span><h3>審査の準備ができています。</h3><p>購入内容を入力して、<br>認定文章を生成してください。</p></div>
 <div id="result" hidden><div class="editor-heading"><label for="editable-text">認定文章 <span class="optional">自由に編集できます</span></label><span id="edit-status" class="help" aria-live="polite"></span></div><textarea id="editable-text" rows="10" aria-describedby="edit-help"></textarea><p id="edit-help" class="help">編集内容は下の認定書に反映されます。</p><button id="regenerate" type="button" class="secondary">同じ内容で、別の言い訳を考える <span aria-hidden="true">↻</span></button><p class="help">再生成には直前に申告した購入内容を使います。</p>
-<div class="preview-heading"><h3>認定書プレビュー</h3><span class="preview-badge">仮レイアウト</span></div><p class="help">01の確定デザインではありません。参考画像受領後に反映します。</p>
-<article id="certificate" class="certificate" aria-label="購入正当化認定書の仮プレビュー"><p class="certificate-kicker">PURCHASE JUSTIFICATION</p><h2>購入正当化認定書</h2><div class="certificate-rule"></div><p id="cert-category" class="certificate-category"></p><h3 id="cert-product"></h3><p id="cert-amount" class="certificate-amount"></p><img id="cert-photo" alt="認定対象の商品写真" hidden><p id="cert-text" class="certificate-body"></p><footer><strong>購入正当化審査室</strong><span>架空の機関による、楽しむための認定書です。</span></footer></article>
+<div class="preview-heading"><h3>購入正当化認定書</h3><span class="preview-badge">PNG / SHARE</span></div>
+<label for="certificate-template">認定書のデザイン</label><select id="certificate-template" aria-describedby="template-help"></select><p class="help" id="template-help">02〜05は仮デザインです。切り替えても編集した文章は維持されます。</p>
+<canvas id="certificate-canvas" role="img" aria-label="購入正当化認定書。内容は下のテキストでも確認できます。" aria-describedby="certificate"></canvas>
+<div class="export-actions"><button id="save-png" class="primary" type="button" disabled>PNG画像を保存 <span aria-hidden="true">↓</span></button><button id="share-png" class="secondary" type="button" disabled>画像を共有 <span aria-hidden="true">↗</span></button></div>
+<p id="export-status" class="help" role="status"></p>
+<section id="save-panel" class="save-panel" aria-label="PNG画像の保存" hidden><h3>認定書のPNG画像</h3><a id="download-png" class="download-link" download>PNGをダウンロード</a><p class="help">iPhoneでは下の画像を長押しし、表示される画像保存の項目を選べます。ダウンロードした場合は「ファイル」アプリから確認してください。</p><img id="saved-image" alt="保存用の購入正当化認定書"><button id="close-save" class="text-button" type="button">保存用画像を閉じる</button></section>
+<article id="certificate" class="certificate sr-only" aria-label="購入正当化認定書のテキスト"><p class="certificate-kicker">PURCHASE JUSTIFICATION</p><h2>購入正当化認定書</h2><div class="certificate-rule"></div><p id="cert-number"></p><p id="cert-reasons"></p><p id="cert-category" class="certificate-category"></p><h3 id="cert-product"></h3><p id="cert-amount" class="certificate-amount"></p><img id="cert-photo" alt="認定対象の商品写真" hidden><p id="cert-text" class="certificate-body"></p><footer><strong>購入正当化審査室</strong><span>架空の機関による、楽しむための認定書です。</span></footer></article>
 </div></section></div>
-<footer class="site-footer">これは買い物を楽しむためのフィクションです。<br>実在の機関による審査や、商品の価値を保証するものではありません。<span>画像保存・SNS共有・認定書の完成デザインは次の段階で追加予定です。</span></footer>
+<footer class="site-footer">これは買い物を楽しむためのフィクションです。<br>実在の機関による審査や、商品の価値を保証するものではありません。<span>写真・入力内容は外部へ送信しません。共有はご自身の操作で行います。</span></footer>
 </main></body></html>

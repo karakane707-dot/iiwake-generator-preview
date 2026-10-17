@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const P=globalThis.IiwakePhrases,G=globalThis.IiwakeGenerator,$=id=>document.getElementById(id);
-let submitted=null,lastGenerated='',photoUrl='',photoVersion=0;
+let submitted=null,lastGenerated='',photoUrl='',photoVersion=0,certificateNumber='';
 P.categories.forEach((c,i)=>$('category').add(new Option(c[0],i)));
 P.recipients.forEach((c,i)=>$('recipient').add(new Option(c,i)));
 // 理由IDと文言は元のまま。表示グループのみ変更する。
@@ -60,7 +60,8 @@ $('reasons').addEventListener('change',event=>{
 updateSelection();
 function dirty(){return submitted&&$('editable-text').value!==lastGenerated;}
 function approveReplace(){return !dirty()||window.confirm('編集した文章を新しい文章に置き換えますか？入力内容と写真は維持されます。');}
-function renderPhoto(){for(const id of ['photo-preview','cert-photo']){$(id).hidden=!photoUrl;if(photoUrl)$(id).src=photoUrl;else $(id).removeAttribute('src');}$('photo-wrap').hidden=!photoUrl;}
+function renderCertificate(){if(submitted){$('cert-number').textContent='認定番号 '+certificateNumber;$('cert-reasons').textContent='購入理由 '+submitted.reasons.map(id=>P.reasons[id].label).join('、');}if(submitted)globalThis.IiwakeCertificateUI.update({...submitted,number:certificateNumber,text:$('editable-text').value,reasons:submitted.reasons.map(id=>P.reasons[id].label),photoUrl});}
+function renderPhoto(){for(const id of ['photo-preview','cert-photo']){$(id).hidden=!photoUrl;if(photoUrl)$(id).src=photoUrl;else $(id).removeAttribute('src');}$('photo-wrap').hidden=!photoUrl;renderCertificate();}
 function setPhoto(url){const old=photoUrl;photoUrl=url;renderPhoto();if(old)URL.revokeObjectURL(old);}
 $('photo').addEventListener('change',()=>{
  const version=++photoVersion,file=$('photo').files[0];if(!file)return;
@@ -70,12 +71,12 @@ $('photo').addEventListener('change',()=>{
  img.onerror=()=>{URL.revokeObjectURL(url);if(version!==photoVersion)return;$('photo').value='';$('form-message').textContent='この画像を読み込めませんでした。JPEG・PNGなどの画像を選び直してください。';};img.src=url;
 });
 $('remove-photo').addEventListener('click',()=>{photoVersion++;setPhoto('');$('photo').value='';$('form-message').textContent='写真を取り消しました。';});
-function renderText(){$('cert-text').textContent=$('editable-text').value;$('edit-status').textContent=dirty()?'編集中':'生成した文章';}
+function renderText(){$('cert-text').textContent=$('editable-text').value;$('edit-status').textContent=dirty()?'編集中':'生成した文章';renderCertificate();}
 function showGenerated(){lastGenerated=G.generate(submitted,lastGenerated);$('editable-text').value=lastGenerated;$('cert-category').textContent=P.categories[submitted.category][0];$('cert-product').textContent=submitted.product;$('cert-amount').textContent='申告金額　¥'+submitted.amount.toLocaleString('ja-JP');$('empty-state').hidden=true;$('result').hidden=false;renderText();renderPhoto();}
 $('purchase-form').addEventListener('submit',event=>{event.preventDefault();
  const input={category:Number($('category').value),product:$('product').value.trim(),amount:G.parseAmount($('amount').value),reasons:checked().map(el=>Number(el.value)),recipient:Number($('recipient').value)};
  try{G.validate(input);}catch(error){$('form-message').textContent=error.message;return;}
- if(!approveReplace())return;submitted=input;showGenerated();$('form-message').textContent='認定文章を生成しました。内容を確認・編集できます。';$('editable-text').focus();
+ if(!approveReplace())return;submitted=input;certificateNumber='PJ-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();showGenerated();$('form-message').textContent='認定文章を生成しました。内容を確認・編集できます。';$('editable-text').focus();
 });
 $('regenerate').addEventListener('click',()=>{if(!submitted||!approveReplace())return;showGenerated();$('form-message').textContent='同じ購入内容で、別の認定文章を生成しました。';});
 $('editable-text').addEventListener('input',renderText);
