@@ -2,7 +2,7 @@
 <html lang="ja">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="あなたの買い物に、もっともらしい理由を。架空の第三者機関が購入正当化認定書を発行します。"><title>言い訳ジェネレーター｜購入正当化認定書</title><link rel="stylesheet" href="styles.css"><script defer src="phrases.js"></script><script defer src="generator.js"></script><script defer src="certificate.js"></script><script defer src="certificate-ui.js"></script><script defer src="motion.js"></script><script defer src="app.js"></script></head>
 <body>
-<div id="review-effect" class="review-effect" aria-hidden="true" hidden><div id="review-brush" class="review-brush"><span>審査中<span class="review-english">UNDER REVIEW</span></span></div></div>
+<div id="review-effect" class="review-effect" hidden><button type="button" id="review-brush" class="review-brush" aria-label="審査演出をスキップ"><span>審査中<span class="review-english">UNDER REVIEW</span><span class="review-skip">タップして演出をスキップ</span></span></button></div>
 <header class="site-header"><a href="#" class="brand">言い訳ジェネレーター<span>PURCHASE JUSTIFICATION OFFICE</span></a><span class="stage">TEST EDITION</span></header>
 <main>
 <section class="intro"><p class="bureau-label">PURCHASE JUSTIFICATION BUREAU / 申告受付</p><p class="eyebrow">その買い物に、第三者の見解を。</p><h1><span class="hero-line"><span>欲しかった。</span></span><span class="hero-line"><span>それには、理由がある。</span></span></h1><span id="hero-brush" class="hero-brush" aria-hidden="true"></span><p>あなたの買い物を、少し真面目に正当化。<br>架空の審査機関が「購入正当化認定書」を発行します。</p></section>
@@ -23,7 +23,9 @@
 <div id="result" hidden><button id="edit-toggle" class="edit-toggle" type="button" aria-expanded="false" aria-controls="edit-panel">認定文章を編集する <span aria-hidden="true">＋</span></button><div id="edit-panel" hidden><div class="editor-heading"><label for="editable-text">認定文章 <span class="optional">自由に編集できます</span></label><span id="edit-status" class="help" aria-live="polite"></span></div><textarea id="editable-text" rows="10" aria-describedby="edit-help"></textarea><p id="edit-help" class="help">編集内容は認定書・PNG保存・共有に反映されます。</p></div><button id="regenerate" type="button" class="secondary">同じ内容で、別の言い訳を考える <span aria-hidden="true">↻</span></button><p class="help">再生成には直前に申告した購入内容を使います。</p>
 <div class="preview-heading"><h3>購入正当化認定書</h3><span class="preview-badge">PNG / SHARE</span></div>
 <label for="certificate-template">認定書のデザイン</label><select id="certificate-template" aria-describedby="template-help"></select><p class="help" id="template-help">02〜05は仮デザインです。切り替えても編集した文章は維持されます。</p>
-<canvas tabindex="-1" id="certificate-canvas" role="img" aria-label="購入正当化認定書。内容は下のテキストでも確認できます。" aria-describedby="certificate"></canvas>
+<p class="help">ストーリーズ向け 9:16 ／ PNG 1080×1920px。全体を画面内に縮小表示します。</p>
+<div id="layout-warning" class="layout-warning" hidden><p id="layout-message" role="alert"></p><button id="fix-overflow" type="button" class="secondary">認定文章を編集して調整する</button></div>
+<canvas width="1080" height="1920" tabindex="-1" id="certificate-canvas" role="img" aria-label="購入正当化認定書。内容は下のテキストでも確認できます。" aria-describedby="certificate"></canvas>
 <div class="export-actions"><button id="save-png" class="primary" type="button" disabled>PNG画像を保存 <span aria-hidden="true">↓</span></button><button id="share-png" class="secondary" type="button" disabled>画像を共有 <span aria-hidden="true">↗</span></button></div>
 <p id="export-status" class="help" role="status"></p>
 <section id="save-panel" class="save-panel" aria-label="PNG画像の保存" hidden><h3>認定書のPNG画像</h3><a id="download-png" class="download-link" download>PNGをダウンロード</a><p class="help">iPhoneでは下の画像を長押しし、表示される画像保存の項目を選べます。ダウンロードした場合は「ファイル」アプリから確認してください。</p><img id="saved-image" alt="保存用の購入正当化認定書"><button id="close-save" class="text-button" type="button">保存用画像を閉じる</button></section>

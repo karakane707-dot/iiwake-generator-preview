@@ -13,13 +13,14 @@ async function draw(version){
   if(current.photoUrl!==renderedPhoto)nextImage=await loadPhoto(current.photoUrl);
   if(version!==revision)return;image=nextImage;renderedPhoto=current.photoUrl;
   C.render($('certificate-canvas'),current,image);
+  $('certificate-canvas').hidden=false;$('layout-warning').hidden=true;
   // 同一canvasのPNGを事前生成。共有タップ後に非同期変換を挟まない。
   const blob=await new Promise((resolve,reject)=>$('certificate-canvas').toBlob(b=>b?resolve(b):reject(Error('PNGを作成できませんでした。文章や写真を短く・小さくして再度お試しください。')),'image/png'));
   if(version!==revision)return;
   png=blob;pngUrl=URL.createObjectURL(blob);$('save-png').disabled=false;$('share-png').disabled=sharing;
   $('certificate-canvas').removeAttribute('aria-busy');status('認定書を更新しました。PNG保存・共有ができます。');
   root.IiwakeCertificateUI.onReady?.();
- }catch(error){if(version!==revision)return;root.IiwakeMotion?.stop();$('certificate-canvas').removeAttribute('aria-busy');status(error.message||'画像を作成できませんでした。');}
+ }catch(error){if(version!==revision)return;root.IiwakeMotion?.stop();$('certificate-canvas').hidden=true;$('certificate-canvas').removeAttribute('aria-busy');status(error.message||'画像を作成できませんでした。');$('layout-message').textContent=error.message||'画像を作成できませんでした。';$('layout-warning').hidden=false;}
 }
 function update(data){model={...data,template:$('certificate-template').value||'drawing'};revision++;invalidate();$('certificate-canvas').setAttribute('aria-busy','true');status('認定書を作成しています…');clearTimeout(timer);const version=revision;timer=setTimeout(()=>draw(version),80);}
 function showSave(){if(!png)return;$('saved-image').src=pngUrl;$('download-png').href=pngUrl;$('download-png').download='purchase-certificate-'+model.number+'.png';$('save-panel').hidden=false;$('save-panel').scrollIntoView({block:'nearest',behavior:'auto'});status('PNGを用意しました。ダウンロード、または下の画像を長押しして保存してください。');}
