@@ -48,7 +48,6 @@ input:focus,select:focus,textarea:focus{background-size:100% 2px}
 .review-brush{width:100%;padding:35px 20px;background:#142348;color:white;text-align:center;clip-path:polygon(0 12%,30% 0,75% 8%,100% 0,100% 88%,60% 100%,20% 92%,0 100%)}
 .review-brush>span{display:block;font-size:28px;font-weight:800;letter-spacing:.18em;transform:skewX(12deg)}.review-english{display:block;font-size:10px;letter-spacing:.28em;margin-top:6px}
 #selected-reasons{overflow:visible}#certificate-canvas{transform-origin:50% 10%}
-@media(prefers-reduced-motion:reduce){.review-effect{display:none!important}}
 
 /* 9:16の1枚を、幅と画面の高さの両方に収める。画像内部のスクロールは作らない。 */
 #certificate-canvas{width:min(100%,calc((100vh - 100px)*.5625));width:min(100%,calc((100svh - 100px)*.5625));height:auto;aspect-ratio:9/16;margin:22px auto;scroll-margin-top:24px}
@@ -56,3 +55,9 @@ input:focus,select:focus,textarea:focus{background-size:100% 2px}
 .review-brush{border:0;border-radius:0;pointer-events:auto;cursor:pointer;padding:45px 20px;transform:none}
 .review-brush>span{transform:none}.review-skip{display:block;font-size:12px;font-weight:400;letter-spacing:.06em;margin-top:16px}
 @media(prefers-reduced-motion:no-preference){.reason-option:has(input:checked){animation:none}.reason-option{transition:background-color .38s,border-color .38s}.reason-group-icon,.edit-toggle span{transition:transform .5s ease-in-out}}
+.review-effect{align-items:flex-end;padding:20px 16px max(20px,env(safe-area-inset-bottom));background:none}
+.review-card{width:min(100%,360px);margin:0 auto;padding:18px 22px;background:#fffefa;color:var(--ink);border:1px solid var(--line);border-top:3px solid var(--accent);box-shadow:0 6px 28px #14234820}
+.review-title{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 12px;font-weight:700;font-size:17px}#review-percent{font-size:24px;font-variant-numeric:tabular-nums}
+#review-progress{display:block;width:100%;height:4px;appearance:none;border:0;background:#e5e8ef;accent-color:var(--accent)}#review-progress::-webkit-progress-bar{background:#e5e8ef}#review-progress::-webkit-progress-value{background:var(--accent)}#review-progress::-moz-progress-bar{background:var(--accent)}
+#review-detail{font-size:12px;color:var(--muted);margin:10px 0 0}
+@media(prefers-reduced-motion:no-preference){#review-progress::-webkit-progress-value{transition:width .12s linear}}
