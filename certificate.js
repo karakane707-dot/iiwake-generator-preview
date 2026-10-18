@@ -68,30 +68,36 @@ function brushOpacity(u,v){
  const c=clamp((.006-Math.abs(side2)+fringe*.1)*400)*(u>.22&&u<.96?1:0);
  return Math.max(main,Math.max(b,c)*(split>.58?.05:.9));
 }
-const brushLayers=new Map();
-function dryBrush(ctx,x,y,w,h){
- const key=w+':'+h;let layer=brushLayers.get(key);
- if(!layer){
-  const scale=1.5,pad=24,bw=Math.ceil(w*scale),bh=Math.ceil(h*scale);
-  layer=surface(ctx,bw+pad*2,bh+pad*2);const p=layer.getContext('2d'),pixels=p.createImageData(layer.width,layer.height);
-  for(let py=0;py<bh;py++)for(let px=0;px<bw;px++){
-   const u=px/(bw-1),v=py/(bh-1),i=((py+pad)*layer.width+px+pad)*4,alpha=brushOpacity(u,v),tone=inkNoise(u*8,v*9);
+// 左端専用の静的な顔料マップ。写真・文字の領域へは描かない。
+let marginBrush;
+function verticalBrush(ctx){
+ if(!marginBrush){
+  const w=144,h=1450; marginBrush=surface(ctx,w*2,h*2);
+  const p=marginBrush.getContext('2d'),pixels=p.createImageData(w*2,h*2);
+  const strokes=[{y:18,h:360,x:60,w:100,flip:1},{y:310,h:650,x:43,w:190,flip:-1},{y:940,h:470,x:51,w:150,flip:1}];
+  for(let y=0;y<h*2;y++)for(let x=0;x<w*2;x++){
+   const px=x/2,py=y/2;let alpha=0;
+   for(const s of strokes){
+    const t=(py-s.y)/s.h;if(t<0||t>1)continue;
+    const u=s.flip>0?t:1-t,center=.92-.82*u-.09*Math.sin(Math.PI*u);
+    const bend=Math.sin(t*5.8)*12+Math.sin(t*13)*3;
+    alpha=Math.max(alpha,brushOpacity(u,center+(px-s.x-bend)/s.w));
+   }
+   const i=(y*w*2+x)*4,tone=inkNoise(px*.09,py*.025);
    pixels.data[i]=8+tone*5;pixels.data[i+1]=23+tone*9;pixels.data[i+2]=52+tone*14;pixels.data[i+3]=Math.round(alpha*255);
   }
-  // D：面の周囲だけに控えめな飛沫。大きな丸を並べない。
-  let seed=907;const rand=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
-  for(let n=0;n<65;n++){
-   const u=.2+rand()*.64,center=.92-.82*u-.09*Math.sin(Math.PI*u),radius=.205*Math.pow(Math.sin(Math.PI*u),.85)*(.65+.48*u);
-   const v=center+(n%2?1:-1)*(radius+.018+rand()*.09),cx=pad+u*bw,cy=pad+v*bh,r=(n%19===0?3: .45+rand()*1.4)*scale;
-   for(let yy=Math.max(0,Math.floor(cy-r));yy<Math.min(layer.height,cy+r+1);yy++)for(let xx=Math.max(0,Math.floor(cx-r));xx<Math.min(layer.width,cx+r+1);xx++){
-    const dist=Math.hypot(xx-cx,(yy-cy)*1.15),a=Math.max(0,Math.min(1,r-dist))*(.55+rand()*.4),i=(yy*layer.width+xx)*4;
-    if(a*255>pixels.data[i+3]){pixels.data[i]=10;pixels.data[i+1]=27;pixels.data[i+2]=58;pixels.data[i+3]=Math.round(a*255);}
+  // 控えめな飛沫も同じ左余白内に限定する。
+  let seed=431;const rand=()=>{seed=seed*16807%2147483647;return seed/2147483647;};
+  for(let n=0;n<95;n++){
+   const cx=8+rand()*121,cy=30+rand()*1370,r=n%23===0?4: .6+rand()*1.7;
+   for(let y=Math.max(0,Math.floor((cy-r)*2));y<Math.min(h*2,(cy+r)*2);y++)for(let x=Math.max(0,Math.floor((cx-r)*2));x<Math.min(w*2,(cx+r)*2);x++){
+    const a=Math.max(0,Math.min(1,(r-Math.hypot(x/2-cx,(y/2-cy)*1.2))*2)),i=(y*w*2+x)*4;
+    if(a*255>pixels.data[i+3]){pixels.data[i]=10;pixels.data[i+1]=27;pixels.data[i+2]=58;pixels.data[i+3]=a*255;}
    }
   }
-  p.putImageData(pixels,0,0);brushLayers.set(key,layer);
+  p.putImageData(pixels,0,0);
  }
- // 3引数drawImageではなく、出力の論理座標へ等倍比率で戻す。
- ctx.drawImage(layer,x-16,y-16,layer.width/1.5,layer.height/1.5);
+ ctx.drawImage(marginBrush,0,22,144,1450);
 }
 function layout(ctx,data){
  // 900×1600の論理座標を1.2倍して1080×1920pxに出力する。
@@ -102,13 +108,13 @@ function layout(ctx,data){
  }
  const product=fit(data.product,300,data.template==='drawing'?200:240,[28,26,24,22],800);
  if(!product){const e=Error('商品名が1枚に収まりません。商品名を短くして、再度生成してください。');e.code='LAYOUT_OVERFLOW';throw e;}
- const reasonY=790;
+ const reasonY=790, left=data.template==='drawing'?156:64, contentWidth=836-left, reasonWidth=contentWidth-91;
  font(ctx,24);const reasons=data.reasons.length?data.reasons:['理由の指定なし'];
- const reasonHeights=reasons.map(r=>Math.max(48,wrap(ctx,r,650).length*30+18));
+ const reasonHeights=reasons.map(r=>Math.max(48,wrap(ctx,r,reasonWidth).length*30+18));
  const bodyY=reasonY+32+reasonHeights.reduce((a,b)=>a+b,0)+64;
- const body=fit(data.text,772,1480-bodyY,[26,24,22]);
+ const body=fit(data.text,contentWidth,1480-bodyY,[26,24,22]);
  if(!body){const e=Error('認定文章が1枚に収まりません。文章を短くするか、不要な改行を減らしてください。内容は保持しています。');e.code='LAYOUT_OVERFLOW';throw e;}
- return {reasonY,reasonHeights,reasons,bodyY,bodyRows:body.rows,bodySize:body.size,bodyLineHeight:body.lineHeight,product,height:1600};
+ return {left,contentWidth,reasonWidth,reasonY,reasonHeights,reasons,bodyY,bodyRows:body.rows,bodySize:body.size,bodyLineHeight:body.lineHeight,product,height:1600};
 }
 function render(canvas,data,img=null){
  let ctx=canvas.getContext('2d');if(!ctx)throw Error('このブラウザでは画像を作成できません。');
@@ -122,23 +128,24 @@ function render(canvas,data,img=null){
  if(style==='editorial'){ctx.fillStyle='#152247';ctx.fillRect(0,0,20,l.height);ctx.fillStyle='#e5e4dd';ctx.fillRect(408,365,442,395);}
  if(style==='drawing'){
   if(img)fullbleed(ctx,img);
-  dryBrush(ctx,440,-24,510,330);dryBrush(ctx,660,650,330,110);
+  verticalBrush(ctx);
  }
- ctx.fillStyle='#131313';lines(ctx,'PURCHASE\nJUSTIFICATION\nBUREAU',62,55,250,18,24,800);
- font(ctx,style==='drawing'?13:17,600);ctx.fillText('No. '+data.number,style==='drawing'?350:490,62);cross(ctx,822,69);
- ctx.fillStyle='#080808';lines(ctx,'購入正当化\n認定書。',60,155,750,76,86,900);
- font(ctx,20,700);ctx.fillText('CERTIFICATE OF JUSTIFICATION',64,340);
+ const left=l.left;
+ ctx.fillStyle='#131313';lines(ctx,'PURCHASE\nJUSTIFICATION\nBUREAU',style==='drawing'?left:62,55,250,18,24,800);
+ font(ctx,style==='drawing'?13:17,600);ctx.fillText('No. '+data.number,style==='drawing'?510:490,62);cross(ctx,822,69);
+ ctx.fillStyle='#080808';lines(ctx,'購入正当化\n認定書。',left-4,155,750,76,86,900);
+ font(ctx,20,700);ctx.fillText('CERTIFICATE OF JUSTIFICATION',left,340);
  if(img&&style!=='drawing')photo(ctx,img,405,385,430,365);
  else if(!img&&style!=='drawing'){ctx.strokeStyle='#b9b8af';ctx.lineWidth=1;ctx.strokeRect(420,395,400,345);cross(ctx,620,530,36);font(ctx,15,500);ctx.fillStyle='#555a62';ctx.fillText('THE VALUE IS IN YOUR REASONS.',450,640);}
- ctx.fillStyle='#111';font(ctx,17,700);ctx.fillText('ITEM / 購入品',64,390);
- font(ctx,l.product.size,800);l.product.rows.forEach((row,i)=>ctx.fillText(row,64,425+i*l.product.lineHeight));
+ ctx.fillStyle='#111';font(ctx,17,700);ctx.fillText('ITEM / 購入品',left,390);
+ font(ctx,l.product.size,800);l.product.rows.forEach((row,i)=>ctx.fillText(row,left,425+i*l.product.lineHeight));
  const priceY=style==='drawing'?640:683;
- rule(ctx,64,priceY,44);font(ctx,17,700);ctx.fillText('PRICE / 購入金額',64,priceY+15);
- let priceSize=40;const price='¥'+data.amount.toLocaleString('ja-JP');font(ctx,priceSize,800);while(ctx.measureText(price).width>310&&priceSize>20){font(ctx,--priceSize,800);}ctx.fillText(price,64,priceY+43);
- font(ctx,17,700);ctx.fillText('REASONS',64,l.reasonY);let ry=l.reasonY+32;
- l.reasons.forEach((r,i)=>{rule(ctx,64,ry,772);font(ctx,21,600);ctx.fillText(String(i+1).padStart(2,'0'),82,ry+10);lines(ctx,r,155,ry+9,650,24,30,500);ry+=l.reasonHeights[i];});rule(ctx,64,ry,772);
- ctx.fillStyle='#141414';font(ctx,17,700);ctx.fillText('JUSTIFICATION',64,l.bodyY-40);
- font(ctx,l.bodySize);l.bodyRows.forEach((row,i)=>ctx.fillText(row,64,l.bodyY+i*l.bodyLineHeight));
+ rule(ctx,left,priceY,44);font(ctx,17,700);ctx.fillText('PRICE / 購入金額',left,priceY+15);
+ let priceSize=40;const price='¥'+data.amount.toLocaleString('ja-JP');font(ctx,priceSize,800);while(ctx.measureText(price).width>310&&priceSize>20){font(ctx,--priceSize,800);}ctx.fillText(price,left,priceY+43);
+ font(ctx,17,700);ctx.fillText('REASONS',left,l.reasonY);let ry=l.reasonY+32;
+ l.reasons.forEach((r,i)=>{rule(ctx,left,ry,l.contentWidth);font(ctx,21,600);ctx.fillText(String(i+1).padStart(2,'0'),left+18,ry+10);lines(ctx,r,left+91,ry+9,l.reasonWidth,24,30,500);ry+=l.reasonHeights[i];});rule(ctx,left,ry,l.contentWidth);
+ ctx.fillStyle='#141414';font(ctx,17,700);ctx.fillText('JUSTIFICATION',left,l.bodyY-40);
+ font(ctx,l.bodySize);l.bodyRows.forEach((row,i)=>ctx.fillText(row,left,l.bodyY+i*l.bodyLineHeight));
  const foot=1520;rule(ctx,64,foot-25,772);font(ctx,16,700);ctx.fillText('PURCHASE JUSTIFICATION BUREAU',64,foot);cross(ctx,816,foot+10,16);
  font(ctx,15);ctx.fillText('購入正当化審査室  /  架空の機関による、楽しむための認定書です。',64,foot+31);
  return {width:canvas.width,height:canvas.height,layout:l};
