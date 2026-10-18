@@ -15,7 +15,7 @@ function stop(){const wasLocked=locked;awaiting=false;finishing=false;previewRea
 function intro(){
  if(media.matches)return;
  document.querySelectorAll('.hero-line > span').forEach((el,i)=>play(el,[{transform:'translateY(100%)',opacity:0},{transform:'translateY(0)',opacity:1}],{duration:1100,delay:100+i*220,easing:'cubic-bezier(.22,.61,.36,1)',fill:'backwards'}));
- play($('hero-brush'),[{transform:'scaleX(0) rotate(-8deg)'},{transform:'scaleX(1) rotate(-8deg)'}],{duration:1100,delay:350,easing:'cubic-bezier(.22,.61,.36,1)',fill:'backwards'});
+ play($('hero-brush'),[{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0% 0 0)'}],{duration:1100,delay:350,easing:'cubic-bezier(.22,.61,.36,1)',fill:'backwards'});
  const headings=document.querySelectorAll('.section-title');
  if('IntersectionObserver' in root){observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){revealHeading(entry.target);observer.unobserve(entry.target);}}, {threshold:0.25});headings.forEach(el=>observer.observe(el));}
  else headings.forEach(revealHeading);
