@@ -97,12 +97,17 @@ body.reviewing #result{visibility:hidden}
 
 @media(max-width:599px){#result>#template-buttons{margin-left:0;margin-right:0}}
 
-/* 端末標準共有。既存の証書canvas・通常保存には影響しない。 */
-#share-dialog{box-sizing:border-box;width:calc(100% - 24px);max-width:480px;max-height:90svh;overflow:auto;border:1px solid #c9cccf;padding:20px;background:#faf9f4;color:#18274f}
+/* 共有先を最初に表示するコンパクトなダイアログ */
+#share-dialog{box-sizing:border-box;width:calc(100% - 24px);max-width:440px;max-height:90svh;overflow:auto;overscroll-behavior:contain;border:1px solid #c9cccf;border-radius:8px;padding:18px;background:#faf9f4;color:#18274f}
 #share-dialog::backdrop{background:rgba(12,20,38,.72)}
-#share-dialog button,#share-dialog .download-link{width:100%;min-height:48px;margin:10px 0}
 #share-dialog [hidden]{display:none!important}
-#share-dialog .share-check{display:flex;align-items:center;gap:8px;font-size:13px}
-#share-url-field{width:24px;height:24px;flex:none}
+.share-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.share-heading h2{font-size:21px;margin:0}
+#share-close{width:44px;height:44px;padding:0;border:1px solid #c9cccf;background:#fff;color:#18274f;font-size:26px;border-radius:4px}
+.share-socials{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.share-socials button,.share-socials a{box-sizing:border-box;min-width:0;min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 2px;border:1px solid #aeb8cd;border-radius:5px;background:#fff;color:#18274f;text-decoration:none;font-size:12px;font-weight:700;cursor:pointer}
+.share-socials svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7}#share-facebook svg{fill:currentColor;stroke:none}
+#share-native{width:100%;min-height:50px;margin:12px 0}
+.share-helpers{display:grid;grid-template-columns:1fr 1fr;gap:8px}.share-helpers button{min-height:48px;margin:0;padding:10px;font-size:14px}
+#share-dialog .help{font-size:12px;line-height:1.65;margin:12px 0}#share-status:empty{display:none}
 #share-preview{display:block;width:100%;height:auto;margin-top:12px;-webkit-touch-callout:default}
-body:has(#share-dialog[open]){overflow:hidden}
+#share-dialog a:focus-visible,#share-dialog button:focus-visible{outline:3px solid #ba763d;outline-offset:2px}

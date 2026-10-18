@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 const config=root.IiwakeSite,$=id=>document.getElementById(id);
-let blob=null,number='',imageUrl='',busy=false;
+let blob=null,number='',imageUrl='',busy=false,scrollState=null;
 function message(text){$('share-status').textContent=text;}
 function clear(){blob=null;if(imageUrl)URL.revokeObjectURL(imageUrl);imageUrl='';$('share-preview').removeAttribute('src');$('share-download').removeAttribute('href');$('share-native').disabled=true;}
 function prepare(source){
@@ -9,20 +9,27 @@ function prepare(source){
  const c=canvas.getContext('2d');c.drawImage(source,0,0);
  // 共有専用コピーの最下部余白にURLを追加。元のプレビュー・保存用canvasは変更しない。
  c.fillStyle='#faf9f4';c.fillRect(48,1895,984,23);c.fillStyle='#18274f';c.textAlign='center';c.textBaseline='middle';
- let size=18;c.font=size+'px sans-serif';while(c.measureText(config.url).width>960&&size>10)c.font=(--size)+'px sans-serif';c.fillText(config.url,540,1906);
+ const credit=config.name+'  |  '+config.url;let size=18;c.font=size+'px sans-serif';while(c.measureText(credit).width>960&&size>10)c.font=(--size)+'px sans-serif';c.fillText(credit,540,1906);
  return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('共有用PNGを作成できませんでした。')),'image/png'));
 }
 function set(value,id){clear();$('share-text-only').hidden=true;blob=value;number=id;imageUrl=URL.createObjectURL(blob);$('share-preview').src=imageUrl;$('share-download').href=imageUrl;$('share-download').download='purchase-certificate-'+number+'-share.png';$('share-native').disabled=false;}
-function open(){if(!blob)return;message('共有先によって画像・文章・URLの一部が省略されます。送信前に内容をご確認ください。');$('share-dialog').showModal();}
-function close(){$('share-dialog').close();$('share-png').focus();}
-async function nativeShare(){
+function unlock(){if(!scrollState)return;const state=scrollState;scrollState=null;document.body.style.cssText=state.css;const style=document.documentElement.style,old=style.scrollBehavior;style.scrollBehavior='auto';root.scrollTo(state.x,state.y);$('share-png').focus({preventScroll:true});style.scrollBehavior=old;}
+function open(){
+ if(!blob||$('share-dialog').open)return;
+ $('share-save-area').hidden=true;$('share-url-copy').hidden=true;$('share-text-only').hidden=true;$('share-guide').textContent='共有先によって画像・文章・URLの一部が省略されます。送信前に内容をご確認ください。';message('');
+ scrollState={x:root.scrollX,y:root.scrollY,css:document.body.style.cssText};Object.assign(document.body.style,{position:'fixed',top:-scrollState.y+'px',left:-scrollState.x+'px',width:'100%',overflow:'hidden'});
+ try{$('share-dialog').showModal();$('share-dialog').scrollTop=0;}catch(e){unlock();message('共有画面を開けませんでした。もう一度お試しください。');}
+}
+function close(){$('share-dialog').close();unlock();}
+function textData(){return {title:'購入正当化認定書',text:config.shareText+'\n'+config.url,url:config.url};}
+async function nativeShare(target='other'){
  if(!blob||busy)return;
- if(!navigator.share){message('端末標準共有は利用できません。「画像を保存」と「サイトURLをコピー」をご利用ください。');return;}
- const data={title:'購入正当化認定書',text:config.shareText+'\n'+config.url};
- if($('share-url-field').checked)data.url=config.url;
+ if(!navigator.share){message('端末標準共有は利用できません。「画像を保存」と「URLをコピー」をご利用ください。');return;}
+ const data=textData();
  let file,supported=false;
  try{file=new File([blob],'purchase-certificate-'+number+'.png',{type:'image/png'});supported=navigator.canShare? navigator.canShare({files:[file]}):true;}catch(_){}
  if(supported){data.files=[file];try{if(navigator.canShare&&!navigator.canShare(data))delete data.files;}catch(_){delete data.files;}}
+ if(target==='instagram'&&!data.files){message('画像を保存して、Instagramのストーリーズで選択してください。URLはコピーしてリンクスタンプに手動で設定できます。');return;}
  busy=true;$('share-native').disabled=true;
  try{
   // タップからshare()までawaitを挟まず、端末のユーザー操作権限を維持。
@@ -36,10 +43,18 @@ async function nativeShare(){
 }
 $('share-png').addEventListener('click',open);
 $('share-close').addEventListener('click',close);
-$('share-native').addEventListener('click',nativeShare);
+$('share-native').addEventListener('click',()=>nativeShare());
+$('share-dialog').addEventListener('close',()=>{if(!$('share-dialog').open)unlock();});
+$('share-dialog').addEventListener('cancel',e=>{e.preventDefault();close();});
+$('share-instagram').addEventListener('click',()=>{$('share-guide').textContent='共有メニューでInstagramを選び、選択肢があればストーリーズへ。表示されない場合は画像を保存してストーリーズで選択してください。リンクスタンプは自動追加されません。URLをコピーして手動で設定できます。';return nativeShare('instagram');});
+$('share-facebook').href='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(config.url);
+$('share-x').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(config.shareText)+'&url='+encodeURIComponent(config.url);
+$('share-facebook').addEventListener('click',()=>{$('share-guide').textContent='FacebookでサイトURLを共有します。認定書画像は自動添付されません。画像を保存して添付するか、端末標準共有をご利用ください。';});
+$('share-x').addEventListener('click',()=>{$('share-guide').textContent='Xの投稿画面に紹介文とURLを渡します。認定書画像は自動添付されません。画像を保存して投稿画面で添付するか、端末標準共有をご利用ください。';});
+$('share-save').addEventListener('click',()=>{if(!blob)return;$('share-save-area').hidden=false;message('下のダウンロード、または画像の長押しで保存してください。');});
 $('share-text-only').addEventListener('click',async()=>{
  if(busy||!navigator.share)return;busy=true;
- try{const data={text:config.shareText+'\n'+config.url};if($('share-url-field').checked)data.url=config.url;await navigator.share(data);message('文章とURLの共有メニューでの操作が終了しました。');}
+ try{const data=textData();await navigator.share(data);message('文章とURLの共有メニューでの操作が終了しました。');}
  catch(e){message(e.name==='AbortError'?'共有をキャンセルしました。':'共有できませんでした。サイトURLをコピーしてください。');}finally{busy=false;}
 });
 $('share-copy').addEventListener('click',async()=>{
