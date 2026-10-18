@@ -18,15 +18,6 @@ function wrap(ctx,text,width){
 function lines(ctx,text,x,y,width,size=24,lineHeight=38,weight=400){font(ctx,size,weight);const rows=wrap(ctx,text,width);rows.forEach((row,i)=>ctx.fillText(row,x,y+i*lineHeight));return y+rows.length*lineHeight;}
 function rule(ctx,x,y,width,color='#cbc9c2'){ctx.strokeStyle=color;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+width,y);ctx.stroke();}
 function cross(ctx,x,y,size=13){ctx.strokeStyle='#171717';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-size,y);ctx.lineTo(x+size,y);ctx.moveTo(x,y-size);ctx.lineTo(x,y+size);ctx.stroke();}
-// 固定の不規則な輪郭と細いかすれで、参考の右上がりの筆跡を構成。
-function brush(ctx,x,y,w,h){
- ctx.save();ctx.translate(x,y);ctx.scale(w/560,h/390);
- const grad=ctx.createLinearGradient(0,390,560,0);grad.addColorStop(0,'#101637');grad.addColorStop(.6,'#0a153f');grad.addColorStop(1,'#245da7');ctx.fillStyle=grad;
- const points=[[0,378],[9,349],[70,295],[116,270],[176,222],[255,177],[336,122],[408,55],[453,31],[518,0],[514,40],[523,58],[508,91],[515,110],[494,140],[484,183],[472,190],[465,162],[480,116],[453,132],[414,157],[365,196],[310,228],[247,266],[205,294],[158,318],[141,310],[112,337],[67,351],[24,383],[15,375]];
- ctx.beginPath();points.forEach(([a,b],i)=>i?ctx.lineTo(a,b):ctx.moveTo(a,b));ctx.closePath();ctx.fill();
- ctx.strokeStyle='#151f4a';ctx.lineWidth=3;for(let i=0;i<9;i++){ctx.beginPath();ctx.moveTo(30+i*4,369-i*2);ctx.lineTo(130+i*11,291-i*6);ctx.stroke();}
- ctx.globalCompositeOperation='destination-out';ctx.fillStyle='#000';for(const p of [[[51,342],[90,300],[124,289],[106,309]],[[462,139],[478,116],[471,148],[451,175]]]){ctx.beginPath();p.forEach(([a,b],i)=>i?ctx.lineTo(a,b):ctx.moveTo(a,b));ctx.closePath();ctx.fill();}ctx.restore();
-}
 function photo(ctx,img,x,y,w,h){
  // cover：中央から同じ比率の領域を切り出し、枠を隙間なく満たす。
  const scale=Math.max(w/img.width,h/img.height),sw=w/scale,sh=h/scale;
@@ -51,15 +42,56 @@ function fullbleed(ctx,img){
  }
  p.globalCompositeOperation='destination-in';p.drawImage(fadeMask,0,0);ctx.drawImage(layer,300,0,600,600*1100/860);
 }
-// 細い筆毛を重ねて濃淡・かすれを作る。写真描画後だけに使用する。
+// Aの太い筆圧を主形にする。長方形や平行線を重ねず、顔料の面を直接生成。
+function inkNoise(x,y){
+ const a=Math.floor(x),b=Math.floor(y),fx=x-a,fy=y-b,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
+ const hash=(i,j)=>{let n=Math.imul(i+71,374761393)^Math.imul(j+137,668265263);n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967295;};
+ return (hash(a,b)*(1-sx)+hash(a+1,b)*sx)*(1-sy)+(hash(a,b+1)*(1-sx)+hash(a+1,b+1)*sx)*sy;
+}
+function brushOpacity(u,v){
+ if(u<0||u>1||v<0||v>1)return 0;
+ const clamp=t=>Math.max(0,Math.min(1,t)),center=.92-.82*u-.09*Math.sin(Math.PI*u),d=v-center;
+ // 筆圧は中央〜右側で大きく、入りと抜けは非対称に細くなる。
+ const pressure=.205*Math.pow(Math.sin(Math.PI*u),.85)*(.65+.48*u);
+ const fringe=(inkNoise(u*47,d*36)-.5)*.064+(inkNoise(u*137,d*95)-.5)*.025;
+ let main=clamp((pressure-Math.abs(d)+fringe)*260);
+ // 毛束ごとに開始・終了位置が違う。面を残しながら裂け目だけを抜く。
+ const tip=inkNoise(d*105,9),start=.015+tip*.16,end=.89+tip*.11;
+ main*=clamp((u-start)*160)*clamp((end-u)*150);
+ const split=inkNoise(u*12+inkNoise(d*18,2),d*220+Math.sin(u*9)*1.8);
+ const edge=Math.abs(d)/(pressure+.006),grain=inkNoise(u*430,v*480);
+ main*=1-clamp((split-(edge>.65?.61:.94))*12);
+ if(grain>(edge>.65?.78:.96))main*=.15;
+ // B・C：主筆から離れて再び合流する、少数の不揃いな補助筆。
+ const side1=d+pressure*.95+.022*Math.sin(u*13),side2=d-pressure*.85-.02*Math.sin(u*8);
+ const b=clamp((.012*Math.sin(Math.PI*u)-Math.abs(side1)+fringe*.2)*300)*(u>.1&&u<.86?1:0);
+ const c=clamp((.006-Math.abs(side2)+fringe*.1)*400)*(u>.22&&u<.96?1:0);
+ return Math.max(main,Math.max(b,c)*(split>.58?.05:.9));
+}
+const brushLayers=new Map();
 function dryBrush(ctx,x,y,w,h){
- const layer=surface(ctx,Math.ceil(w)+64,Math.ceil(h)+64),p=layer.getContext('2d');
- // 太さが変化する大きな筆跡を主形にし、透明な裂け目で写真をのぞかせる。
- p.globalAlpha=.7;brush(p,25,48,w*.98,h*.94);p.globalAlpha=1;brush(p,32,32,w,h);let seed=719;const rand=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
- p.strokeStyle='#0d2048';for(let i=0;i<38;i++){const t=.05+rand()*.88,yy=32+h*(1-t),length=8+rand()*48;p.lineWidth=.6+rand()*3;p.beginPath();p.moveTo(32+w*t-length,yy+10+rand()*24);p.lineTo(32+w*t+length*.3,yy-3);p.stroke();}
- p.globalCompositeOperation='destination-out';
- for(let i=0;i<240;i++){const t=rand(),spread=(rand()-.5)*h*.2;p.globalAlpha=.25+rand()*.7;p.save();p.translate(32+w*t,32+h*(1-t)+spread);p.rotate(-.65);p.fillRect(0,0,2+rand()*22,.5+rand()*2.5);p.restore();}
- ctx.drawImage(layer,x-32,y-32);
+ const key=w+':'+h;let layer=brushLayers.get(key);
+ if(!layer){
+  const scale=1.5,pad=24,bw=Math.ceil(w*scale),bh=Math.ceil(h*scale);
+  layer=surface(ctx,bw+pad*2,bh+pad*2);const p=layer.getContext('2d'),pixels=p.createImageData(layer.width,layer.height);
+  for(let py=0;py<bh;py++)for(let px=0;px<bw;px++){
+   const u=px/(bw-1),v=py/(bh-1),i=((py+pad)*layer.width+px+pad)*4,alpha=brushOpacity(u,v),tone=inkNoise(u*8,v*9);
+   pixels.data[i]=8+tone*5;pixels.data[i+1]=23+tone*9;pixels.data[i+2]=52+tone*14;pixels.data[i+3]=Math.round(alpha*255);
+  }
+  // D：面の周囲だけに控えめな飛沫。大きな丸を並べない。
+  let seed=907;const rand=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+  for(let n=0;n<65;n++){
+   const u=.2+rand()*.64,center=.92-.82*u-.09*Math.sin(Math.PI*u),radius=.205*Math.pow(Math.sin(Math.PI*u),.85)*(.65+.48*u);
+   const v=center+(n%2?1:-1)*(radius+.018+rand()*.09),cx=pad+u*bw,cy=pad+v*bh,r=(n%19===0?3: .45+rand()*1.4)*scale;
+   for(let yy=Math.max(0,Math.floor(cy-r));yy<Math.min(layer.height,cy+r+1);yy++)for(let xx=Math.max(0,Math.floor(cx-r));xx<Math.min(layer.width,cx+r+1);xx++){
+    const dist=Math.hypot(xx-cx,(yy-cy)*1.15),a=Math.max(0,Math.min(1,r-dist))*(.55+rand()*.4),i=(yy*layer.width+xx)*4;
+    if(a*255>pixels.data[i+3]){pixels.data[i]=10;pixels.data[i+1]=27;pixels.data[i+2]=58;pixels.data[i+3]=Math.round(a*255);}
+   }
+  }
+  p.putImageData(pixels,0,0);brushLayers.set(key,layer);
+ }
+ // 3引数drawImageではなく、出力の論理座標へ等倍比率で戻す。
+ ctx.drawImage(layer,x-16,y-16,layer.width/1.5,layer.height/1.5);
 }
 function layout(ctx,data){
  // 900×1600の論理座標を1.2倍して1080×1920pxに出力する。
@@ -111,5 +143,5 @@ function render(canvas,data,img=null){
  font(ctx,15);ctx.fillText('購入正当化審査室  /  架空の機関による、楽しむための認定書です。',64,foot+31);
  return {width:canvas.width,height:canvas.height,layout:l};
 }
-const api={templates,wrap,layout,render,photoOpacity};root.IiwakeCertificate=api;if(typeof module!=='undefined')module.exports=api;
+const api={templates,wrap,layout,render,photoOpacity,brushOpacity};root.IiwakeCertificate=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);
