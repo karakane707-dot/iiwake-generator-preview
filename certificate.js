@@ -25,7 +25,7 @@ function brush(ctx,x,y,w,h){
  const points=[[0,378],[9,349],[70,295],[116,270],[176,222],[255,177],[336,122],[408,55],[453,31],[518,0],[514,40],[523,58],[508,91],[515,110],[494,140],[484,183],[472,190],[465,162],[480,116],[453,132],[414,157],[365,196],[310,228],[247,266],[205,294],[158,318],[141,310],[112,337],[67,351],[24,383],[15,375]];
  ctx.beginPath();points.forEach(([a,b],i)=>i?ctx.lineTo(a,b):ctx.moveTo(a,b));ctx.closePath();ctx.fill();
  ctx.strokeStyle='#151f4a';ctx.lineWidth=3;for(let i=0;i<9;i++){ctx.beginPath();ctx.moveTo(30+i*4,369-i*2);ctx.lineTo(130+i*11,291-i*6);ctx.stroke();}
- ctx.fillStyle='#f8f7f2';for(const p of [[[51,342],[90,300],[124,289],[106,309]],[[462,139],[478,116],[471,148],[451,175]]]){ctx.beginPath();p.forEach(([a,b],i)=>i?ctx.lineTo(a,b):ctx.moveTo(a,b));ctx.closePath();ctx.fill();}ctx.restore();
+ ctx.globalCompositeOperation='destination-out';ctx.fillStyle='#000';for(const p of [[[51,342],[90,300],[124,289],[106,309]],[[462,139],[478,116],[471,148],[451,175]]]){ctx.beginPath();p.forEach(([a,b],i)=>i?ctx.lineTo(a,b):ctx.moveTo(a,b));ctx.closePath();ctx.fill();}ctx.restore();
 }
 function photo(ctx,img,x,y,w,h){
  // cover：中央から同じ比率の領域を切り出し、枠を隙間なく満たす。
@@ -53,12 +53,13 @@ function fullbleed(ctx,img){
 }
 // 細い筆毛を重ねて濃淡・かすれを作る。写真描画後だけに使用する。
 function dryBrush(ctx,x,y,w,h){
- ctx.save();let seed=719;const rand=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
- for(let i=0;i<105;i++){const lane=(i/104-.5)*h*.25,start=rand()*.32,end=.65+rand()*.4,thick=1+rand()*9;
-  ctx.fillStyle=i%9===0?'#24466d':'#0d2048';ctx.globalAlpha=.5+rand()*.5;
-  const yy=t=>y+h*(1-t)+lane+Math.sin(t*5+i)*4;
-  ctx.beginPath();ctx.moveTo(x+w*start,yy(start));ctx.lineTo(x+w*(start+.14),yy(start+.14)-thick*.5);ctx.lineTo(x+w*(end-.12),yy(end-.12)-thick);ctx.lineTo(x+w*end,yy(end));ctx.lineTo(x+w*(end-.18),yy(end-.18)+thick*.5);ctx.lineTo(x+w*(start+.07),yy(start+.07)+thick*.3);ctx.closePath();ctx.fill();
- }ctx.restore();
+ const layer=surface(ctx,Math.ceil(w)+64,Math.ceil(h)+64),p=layer.getContext('2d');
+ // 太さが変化する大きな筆跡を主形にし、透明な裂け目で写真をのぞかせる。
+ p.globalAlpha=.7;brush(p,25,48,w*.98,h*.94);p.globalAlpha=1;brush(p,32,32,w,h);let seed=719;const rand=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+ p.strokeStyle='#0d2048';for(let i=0;i<38;i++){const t=.05+rand()*.88,yy=32+h*(1-t),length=8+rand()*48;p.lineWidth=.6+rand()*3;p.beginPath();p.moveTo(32+w*t-length,yy+10+rand()*24);p.lineTo(32+w*t+length*.3,yy-3);p.stroke();}
+ p.globalCompositeOperation='destination-out';
+ for(let i=0;i<240;i++){const t=rand(),spread=(rand()-.5)*h*.2;p.globalAlpha=.25+rand()*.7;p.save();p.translate(32+w*t,32+h*(1-t)+spread);p.rotate(-.65);p.fillRect(0,0,2+rand()*22,.5+rand()*2.5);p.restore();}
+ ctx.drawImage(layer,x-32,y-32);
 }
 function layout(ctx,data){
  // 900×1600の論理座標を1.2倍して1080×1920pxに出力する。

@@ -74,3 +74,19 @@ input:focus,select:focus,textarea:focus{background-size:100% 2px}
 #result>.export-actions{margin-top:12px}#result>.edit-toggle{font-weight:500;font-size:13px}
 #regenerate{font-size:13px;font-weight:500}
 #crop-canvas{aspect-ratio:86/110;max-height:55svh;width:auto;max-width:100%;margin:16px auto}
+/* 認定書→保存共有→デザイン→編集→再生成 */
+#certificate-canvas{width:100%;max-width:540px;margin:0 auto 14px;scroll-margin-top:12px;border:0}
+.template-toolbar{display:block;max-width:none;margin:20px 0 14px}.template-toolbar label{display:block;margin-bottom:6px}.template-toolbar #certificate-template{width:100%;min-height:48px}
+#result>.edit-toggle,#regenerate{display:flex;justify-content:center;align-items:center;gap:10px;min-height:56px;width:100%;padding:14px;border:1px solid #aeb8cd;background:#e9edf5;color:#18274f;font-size:14px;font-weight:700;margin-top:12px}
+#result>.edit-toggle:hover,#regenerate:hover{background:#dce3f0}
+#edit-toggle span,#edit-toggle[aria-expanded=true] span{font-size:inherit;transform:none}
+#edit-toggle svg,#regenerate svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;flex:none}
+@media(max-width:599px){.result-panel{margin-inline:-12px}#result>:not(#certificate-canvas){margin-left:12px;margin-right:12px}#result>.edit-toggle,#result>#regenerate{width:calc(100% - 24px)}}
+@media(max-width:360px){.result-panel{margin-inline:-4px}}
+body.reviewing{position:fixed;left:0;right:0;width:100%;overflow:hidden;overscroll-behavior:none}
+body.reviewing #result{visibility:hidden}
+.review-effect{inset:0;z-index:1000;background:#f4f3ef;display:grid;place-items:center;pointer-events:auto;touch-action:none;overscroll-behavior:none;padding:24px}
+.review-card{width:min(100%,420px);padding:0;border:0;box-shadow:none;background:transparent;text-align:center}
+.review-kicker{font-size:10px;letter-spacing:.15em;margin-bottom:36px;color:#646977}
+.review-title{display:block;font-size:36px;letter-spacing:.08em}.review-title #review-percent{display:block;font-size:76px;letter-spacing:-.04em;margin:12px 0 28px}
+#review-detail{font-size:15px;min-height:2em;margin-top:24px}

@@ -20,6 +20,7 @@ function disclosure(button,panel,open){
  const height=panel.hidden?0:panel.getBoundingClientRect?.().height||0;
  panel._motion?.cancel();panel._motion=null;
  button.setAttribute('aria-expanded',String(open));panel.inert=!open;
+ if(button===$('edit-toggle'))$('edit-toggle-label').textContent=open?'編集を閉じる':'認定文章を編集する';
  if(open)panel.hidden=false;
  if(reducedMotion()||!panel.animate){panel.hidden=!open;return;}
  const motion=panel.animate([{height:height+'px',opacity:open?0.4:1},{height:(open?panel.scrollHeight:0)+'px',opacity:open?1:0}],{duration:500,easing:'cubic-bezier(.22,.61,.36,1)'});
@@ -103,13 +104,13 @@ $('remove-photo').addEventListener('click',()=>{photoVersion++;globalThis.Iiwake
 function checkAmount(){const invalid=/[^0-9]/.test($('amount').value);$('amount-message').textContent=invalid?'半角数字のみで入力してください。全角数字・カンマ・記号・小数点は使用できません。':'';$('amount').setCustomValidity?.(invalid?'半角数字のみで入力してください':'');$('amount').setAttribute('aria-invalid',String(invalid));return !invalid;}
 $('amount').addEventListener('input',checkAmount);
 function renderText(){$('cert-text').textContent=$('editable-text').value;$('edit-status').textContent=dirty()?'編集中':'生成した文章';renderCertificate();}
-function showGenerated(){beginGeneration();lastGenerated=G.generate(submitted,lastGenerated);$('editable-text').value=lastGenerated;$('cert-category').textContent=P.categories[submitted.category][0];$('cert-product').textContent=submitted.product;$('cert-amount').textContent='申告金額　¥'+submitted.amount.toLocaleString('ja-JP');$('empty-state').hidden=true;$('result').hidden=false;renderText();renderPhoto();}
+function showGenerated(){try{beginGeneration();lastGenerated=G.generate(submitted,lastGenerated);$('editable-text').value=lastGenerated;$('cert-category').textContent=P.categories[submitted.category][0];$('cert-product').textContent=submitted.product;$('cert-amount').textContent='申告金額　¥'+submitted.amount.toLocaleString('ja-JP');$('empty-state').hidden=true;$('result').hidden=false;renderText();renderPhoto();return true;}catch(error){pendingPreview=false;globalThis.IiwakeMotion?.stop();$('form-message').textContent=error.message||'生成できませんでした。もう一度お試しください。';return false;}}
 $('purchase-form').addEventListener('submit',event=>{event.preventDefault();
  if(!checkAmount()){$('form-message').textContent=$('amount-message').textContent;return;}
  const input={category:Number($('category').value),product:$('product').value.trim(),amount:G.parseAmount($('amount').value),reasons:checked().map(el=>Number(el.value)),recipient:Number($('recipient').value)};
  try{G.validate(input);}catch(error){$('form-message').textContent=error.message;return;}
- if(!approveReplace())return;submitted=input;certificateNumber='PJ-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();showGenerated();$('form-message').textContent='認定文章を生成しました。内容を確認・編集できます。';
+ if(!approveReplace())return;submitted=input;certificateNumber='PJ-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();if(showGenerated())$('form-message').textContent='認定文章を生成しました。内容を確認・編集できます。';
 });
-$('regenerate').addEventListener('click',()=>{if(!submitted||!approveReplace())return;showGenerated();$('form-message').textContent='同じ購入内容で、別の認定文章を生成しました。';});
+$('regenerate').addEventListener('click',()=>{if(!submitted||!approveReplace())return;if(showGenerated())$('form-message').textContent='同じ購入内容で、別の認定文章を生成しました。';});
 $('editable-text').addEventListener('input',renderText);
 })();
