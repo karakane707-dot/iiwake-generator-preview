@@ -153,5 +153,7 @@ function render(canvas,data,img=null){
  font(ctx,15);ctx.fillText('購入正当化審査室  /  架空の機関による、楽しむための認定書です。',64,foot+31);
  return {width:canvas.width,height:canvas.height,layout:l};
 }
-const api={templates,wrap,layout,render,photoOpacity,brushOpacity};root.IiwakeCertificate=api;if(typeof module!=='undefined')module.exports=api;
+// 認定書01の縦ブラシをそのまま横向きに再利用。顔料・かすれ・飛沫は同一。
+function renderHeroBrush(canvas){canvas.width=1767;canvas.height=174;const ctx=canvas.getContext('2d');ctx.scale(1.2,1.2);ctx.translate(0,144);ctx.rotate(-Math.PI/2);verticalBrush(ctx);}
+const api={templates,wrap,layout,render,photoOpacity,brushOpacity,renderHeroBrush};root.IiwakeCertificate=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);
