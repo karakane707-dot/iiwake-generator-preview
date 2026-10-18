@@ -1,14 +1,13 @@
 /* 写真構図。元画像と確定済み構図を保持し、編集は別の下書きで行う。 */
 (function(root){
 'use strict';
-const W=860,H=730;
+const W=860,H=1100;
 function bounds(img,state){const zoom=Math.min(4,Math.max(1,Number(state.zoom)||1)),scale=Math.max(W/img.width,H/img.height)*zoom,sw=W/scale,sh=H/scale;return {zoom,cx:Math.max(sw/2,Math.min(img.width-sw/2,state.cx)),cy:Math.max(sh/2,Math.min(img.height-sh/2,state.cy)),sw,sh};}
 if(typeof module!=='undefined'&&module.exports){module.exports={bounds,W,H};return;}
 const $=id=>document.getElementById(id),dialog=$('crop-dialog'),canvas=$('crop-canvas');
 let committed=null,draft=null,drag=null,revision=0,returnFocus=null;
-function draw(){if(!draft)return;draft.state=bounds(draft.img,draft.state);const s=draft.state;canvas.width=W;canvas.height=H;const ctx=canvas.getContext('2d'),masked=($('certificate-template').value||'drawing')==='drawing';
- if(masked){ctx.fillStyle='#f8f7f2';ctx.fillRect(0,0,W,H);ctx.save();root.IiwakeCertificate.photoMask(ctx,0,0,W,H);ctx.clip();}
- ctx.drawImage(draft.img,s.cx-s.sw/2,s.cy-s.sh/2,s.sw,s.sh,0,0,W,H);if(masked)ctx.restore();$('crop-zoom').value=s.zoom;$('crop-zoom-value').textContent=s.zoom.toFixed(2)+'倍';}
+function draw(){if(!draft)return;draft.state=bounds(draft.img,draft.state);const s=draft.state;canvas.width=W;canvas.height=H;const ctx=canvas.getContext('2d');
+ ctx.drawImage(draft.img,s.cx-s.sw/2,s.cy-s.sh/2,s.sw,s.sh,0,0,W,H);$('crop-zoom').value=s.zoom;$('crop-zoom-value').textContent=s.zoom.toFixed(2)+'倍';}
 function open(img,url){
  if(draft)cancel();returnFocus=document.activeElement;
  draft=img?{img,url,state:{zoom:1,cx:img.width/2,cy:img.height/2}}:{...committed,state:{...committed.state}};

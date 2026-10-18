@@ -52,7 +52,7 @@ function showPreview(preview){
   $('review-effect').hidden=true;
   if(media.matches){awaiting=false;previewReady=null;preview.focus({preventScroll:true});preview.scrollIntoView({block:'start',behavior:'auto'});return;}
   // 移動は550ms、認定書の登場は850ms。審査の読める時間とは分ける。
-  const from=window.scrollY,to=Math.max(0,Math.min(from+preview.getBoundingClientRect().top-24,document.documentElement.scrollHeight-window.innerHeight)),start=performance.now();
+  const from=window.scrollY,to=Math.max(0,Math.min(from+preview.getBoundingClientRect().top-68,document.documentElement.scrollHeight-window.innerHeight)),start=performance.now();
   const step=now=>{if(token!==cycle)return;const t=Math.min(1,(now-start)/550),ease=t*t*(3-2*t);window.scrollTo(0,from+(to-from)*ease);if(t<1)frame=requestAnimationFrame(step);else arrive();};frame=requestAnimationFrame(step);
  }
  move();

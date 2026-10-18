@@ -32,10 +32,33 @@ function photo(ctx,img,x,y,w,h){
  const scale=Math.max(w/img.width,h/img.height),sw=w/scale,sh=h/scale;
  ctx.drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,x,y,w,h);
 }
-// 写真の四辺を箱として残さず、紙面の右端へ抜ける切り抜き形状。
-function photoMask(ctx,x,y,w,h){
- const points=[[.34,0],[.68,.035],[1,.06],[1,.90],[.66,.96],[.4,1],[.09,.89],[.13,.84],[.19,.66],[0,.50],[.04,.45],[.14,.23],[.23,.16]];
- ctx.beginPath();points.forEach(([a,b],i)=>i?ctx.lineTo(x+a*w,y+b*h):ctx.moveTo(x+a*w,y+b*h));ctx.closePath();
+// 参考01：輪郭線を作らず、紙の繊維ににじむように透明度を変える。
+function photoOpacity(u,v){
+ const smooth=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
+ const edge=.38-.24*smooth((v-.25)/.4)+.02*Math.sin(v*37);
+ const hash=(x,y)=>{const n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n);};
+ const noise=(x,y)=>{const a=Math.floor(x),b=Math.floor(y),fx=smooth(x-a),fy=smooth(y-b);return (hash(a,b)*(1-fx)+hash(a+1,b)*fx)*(1-fy)+(hash(a,b+1)*(1-fx)+hash(a+1,b+1)*fx)*fy;};
+ const grain=(noise(u*65,v*90)-.5)*2+(noise(u*230,v*310)-.5)*.35;
+ return smooth((u-edge+grain*.035)/.24)*smooth(v/.035)*smooth((1-v+grain*.012)/.16)*smooth((1-v)/.025);
+}
+function surface(ctx,w,h){const c=ctx.canvas.ownerDocument?ctx.canvas.ownerDocument.createElement('canvas'):new ctx.canvas.constructor(w,h);c.width=w;c.height=h;return c;}
+let fadeMask;
+function fullbleed(ctx,img){
+ const w=860,h=1100,layer=surface(ctx,w,h),p=layer.getContext('2d');
+ photo(p,img,0,0,w,h);
+ if(!fadeMask){fadeMask=surface(ctx,w,h);const m=fadeMask.getContext('2d'),pixels=m.createImageData(w,h);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;pixels.data[i+3]=Math.round(255*photoOpacity(x/(w-1),y/(h-1)));}m.putImageData(pixels,0,0);
+ }
+ p.globalCompositeOperation='destination-in';p.drawImage(fadeMask,0,0);ctx.drawImage(layer,300,0,600,600*1100/860);
+}
+// 細い筆毛を重ねて濃淡・かすれを作る。写真描画後だけに使用する。
+function dryBrush(ctx,x,y,w,h){
+ ctx.save();let seed=719;const rand=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+ for(let i=0;i<105;i++){const lane=(i/104-.5)*h*.25,start=rand()*.32,end=.65+rand()*.4,thick=1+rand()*9;
+  ctx.fillStyle=i%9===0?'#24466d':'#0d2048';ctx.globalAlpha=.5+rand()*.5;
+  const yy=t=>y+h*(1-t)+lane+Math.sin(t*5+i)*4;
+  ctx.beginPath();ctx.moveTo(x+w*start,yy(start));ctx.lineTo(x+w*(start+.14),yy(start+.14)-thick*.5);ctx.lineTo(x+w*(end-.12),yy(end-.12)-thick);ctx.lineTo(x+w*end,yy(end));ctx.lineTo(x+w*(end-.18),yy(end-.18)+thick*.5);ctx.lineTo(x+w*(start+.07),yy(start+.07)+thick*.3);ctx.closePath();ctx.fill();
+ }ctx.restore();
 }
 function layout(ctx,data){
  // 900×1600の論理座標を1.2倍して1080×1920pxに出力する。
@@ -64,23 +87,16 @@ function render(canvas,data,img=null){
  if(style==='classic'){ctx.strokeStyle='#766849';ctx.lineWidth=3;ctx.strokeRect(24,24,852,l.height-48);ctx.lineWidth=1;ctx.strokeRect(33,33,834,l.height-66);}
  if(style==='official'){ctx.fillStyle='#e3e7e5';ctx.fillRect(50,135,800,240);}
  if(style==='editorial'){ctx.fillStyle='#152247';ctx.fillRect(0,0,20,l.height);ctx.fillStyle='#e5e4dd';ctx.fillRect(408,365,442,395);}
- ctx.fillStyle='#131313';lines(ctx,'PURCHASE\nJUSTIFICATION\nBUREAU',62,55,250,18,24,800);
- font(ctx,17,600);ctx.fillText('No. '+data.number,490,62);cross(ctx,822,69);
  if(style==='drawing'){
-  brush(ctx,350,130,500,380);
-  brush(ctx,437,640,430,150);
+  if(img)fullbleed(ctx,img);
+  dryBrush(ctx,440,-24,510,330);dryBrush(ctx,660,650,330,110);
  }
+ ctx.fillStyle='#131313';lines(ctx,'PURCHASE\nJUSTIFICATION\nBUREAU',62,55,250,18,24,800);
+ font(ctx,style==='drawing'?13:17,600);ctx.fillText('No. '+data.number,style==='drawing'?350:490,62);cross(ctx,822,69);
  ctx.fillStyle='#080808';lines(ctx,'購入正当化\n認定書。',60,155,750,76,86,900);
  font(ctx,20,700);ctx.fillText('CERTIFICATE OF JUSTIFICATION',64,340);
- if(img&&style==='drawing'){
-  ctx.save();photoMask(ctx,405,330,495,495*365/430);ctx.clip();photo(ctx,img,405,330,495,495*365/430);ctx.restore();
- }else if(img)photo(ctx,img,405,385,430,365);
- else {ctx.strokeStyle='#b9b8af';ctx.lineWidth=1;ctx.strokeRect(420,395,400,345);cross(ctx,620,530,36);font(ctx,15,500);ctx.fillStyle='#555a62';ctx.fillText('THE VALUE IS IN YOUR REASONS.',450,640);}
- if(img&&style==='drawing'){
-  // 上部の大筆は写真の後ろへ消え、下部の筆跡は紙面から写真の前へ渡る。
-  // 小さな矩形ラベルや写真周囲の枠線は配置しない。
-  brush(ctx,410,688,470,88);
- }
+ if(img&&style!=='drawing')photo(ctx,img,405,385,430,365);
+ else if(!img&&style!=='drawing'){ctx.strokeStyle='#b9b8af';ctx.lineWidth=1;ctx.strokeRect(420,395,400,345);cross(ctx,620,530,36);font(ctx,15,500);ctx.fillStyle='#555a62';ctx.fillText('THE VALUE IS IN YOUR REASONS.',450,640);}
  ctx.fillStyle='#111';font(ctx,17,700);ctx.fillText('ITEM / 購入品',64,390);
  font(ctx,l.product.size,800);l.product.rows.forEach((row,i)=>ctx.fillText(row,64,425+i*l.product.lineHeight));
  const priceY=style==='drawing'?640:683;
@@ -94,5 +110,5 @@ function render(canvas,data,img=null){
  font(ctx,15);ctx.fillText('購入正当化審査室  /  架空の機関による、楽しむための認定書です。',64,foot+31);
  return {width:canvas.width,height:canvas.height,layout:l};
 }
-const api={templates,wrap,layout,render,photoMask};root.IiwakeCertificate=api;if(typeof module!=='undefined')module.exports=api;
+const api={templates,wrap,layout,render,photoOpacity};root.IiwakeCertificate=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);
