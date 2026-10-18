@@ -96,3 +96,13 @@ body.reviewing #result{visibility:hidden}
 .template-buttons button:focus-visible{outline:3px solid #ba763d;outline-offset:2px}
 
 @media(max-width:599px){#result>#template-buttons{margin-left:0;margin-right:0}}
+
+/* 端末標準共有。既存の証書canvas・通常保存には影響しない。 */
+#share-dialog{box-sizing:border-box;width:calc(100% - 24px);max-width:480px;max-height:90svh;overflow:auto;border:1px solid #c9cccf;padding:20px;background:#faf9f4;color:#18274f}
+#share-dialog::backdrop{background:rgba(12,20,38,.72)}
+#share-dialog button,#share-dialog .download-link{width:100%;min-height:48px;margin:10px 0}
+#share-dialog [hidden]{display:none!important}
+#share-dialog .share-check{display:flex;align-items:center;gap:8px;font-size:13px}
+#share-url-field{width:24px;height:24px;flex:none}
+#share-preview{display:block;width:100%;height:auto;margin-top:12px;-webkit-touch-callout:default}
+body:has(#share-dialog[open]){overflow:hidden}
