@@ -10,7 +10,7 @@
 <section class="panel input-panel" aria-labelledby="input-heading"><div class="section-title"><i class="section-reveal-line" aria-hidden="true"></i><span>01</span><h2 id="input-heading">購入内容を申告する</h2></div>
 <form id="purchase-form">
 <label for="category">商品分類 <span class="required">必須</span></label><select id="category" required></select>
-<label for="product">商品名 <span class="required">必須</span></label><input id="product" required maxlength="100" placeholder="例：ずっと気になっていた一鉢" autocomplete="off">
+<label for="product">何を買いましたか？ <span class="required">必須</span></label><input id="product" required maxlength="100" placeholder="例：マッカラン12年" autocomplete="off">
 <label for="amount">購入金額 <span class="required">必須</span></label><div class="amount-input"><input id="amount" type="text" inputmode="numeric" pattern="[0-9]+" required maxlength="12" placeholder="例：12000" aria-describedby="amount-help amount-message"><span>円</span></div><p id="amount-help" class="help">半角数字のみで入力してください</p><p id="amount-message" class="message" role="status"></p>
 <fieldset><legend>購入理由 <span class="optional">最大3つ・任意</span></legend><div class="reason-toolbar"><span>当てはまる理由を選んでください</span><output id="reason-count" aria-live="polite">0 / 3</output></div><div id="selected-reasons" class="selected-reasons" role="group" aria-label="選択済みの購入理由。タップして解除"></div><div id="reasons" class="reason-groups"></div><p id="reason-message" class="help" aria-live="polite"></p></fieldset>
 <label for="recipient">言い訳する相手 <span class="optional">任意</span></label><select id="recipient"></select>

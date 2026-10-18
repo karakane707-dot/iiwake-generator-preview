@@ -3,6 +3,12 @@
 const P=globalThis.IiwakePhrases,G=globalThis.IiwakeGenerator,$=id=>document.getElementById(id);
 let submitted=null,lastGenerated='',photoUrl='',photoVersion=0,certificateNumber='';
 P.categories.forEach((c,i)=>$('category').add(new Option(c[0],i)));
+// 入力例だけを切り替える。入力値や生成データには触れない。
+const productExamples=['マッカラン12年','アガベ チタノタ','テーブルランプ','レザージャケット','腕時計','ワイヤレスイヤホン','プラモデル','マフラー','香水','お取り寄せチョコレート','購入したものの名前'];
+function updateProductExample(){$('product').placeholder='例：'+(productExamples[Number($('category').value)]||productExamples[10]);}
+$('category').addEventListener('change',updateProductExample);
+updateProductExample();
+
 P.recipients.forEach((c,i)=>$('recipient').add(new Option(c,i)));
 // 理由IDと文言は元のまま。表示グループのみ変更する。
 const groups=[
