@@ -2,7 +2,7 @@
 (function(root){
 'use strict';
 const FONT='"Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", Meiryo, sans-serif';
-const templates=[{id:'drawing',label:'01：ドローイング・抽象'},{id:'classic',label:'02：クラシック（仮）'},{id:'official',label:'03：公的審査書類（仮）'},{id:'minimal',label:'04：ミニマル（仮）'},{id:'editorial',label:'05：雑誌エディトリアル（仮）'}];
+const templates=[{id:'drawing',label:'01：ドローイング・抽象'},{id:'classic',label:'02：クラシック'},{id:'official',label:'03：エディトリアル'},{id:'minimal',label:'04：ミニマル'},{id:'editorial',label:'05：アートコラージュ'}];
 function font(ctx,size,weight=400){ctx.font=`${weight} ${size}px ${FONT}`;}
 function wrap(ctx,text,width){
  const lines=[];
@@ -99,7 +99,9 @@ function verticalBrush(ctx){
  }
  ctx.drawImage(marginBrush,0,22,144,1450);
 }
+function extras(){return root.IiwakeExtraTemplates||(typeof module!=='undefined'?require('./certificate-templates.js'):null);}
 function layout(ctx,data){
+ if(data.template&&data.template!=='drawing'&&extras()?.renderers[data.template])return extras().layout(ctx,data,wrap);
  // 900×1600の論理座標を1.2倍して1080×1920pxに出力する。
  // 読める最小文字サイズで収まらなければ、内容を切らずに編集を依頼する。
  function fit(text,width,height,sizes,weight=400){
@@ -117,6 +119,7 @@ function layout(ctx,data){
  return {left,contentWidth,reasonWidth,reasonY,reasonHeights,reasons,bodyY,bodyRows:body.rows,bodySize:body.size,bodyLineHeight:body.lineHeight,product,height:1600};
 }
 function render(canvas,data,img=null){
+ if(data.template&&data.template!=='drawing'&&extras()?.renderers[data.template])return extras().render(canvas,data,img,{wrap});
  let ctx=canvas.getContext('2d');if(!ctx)throw Error('このブラウザでは画像を作成できません。');
  const l=layout(ctx,data),width=900;
  const scale=1.2;
