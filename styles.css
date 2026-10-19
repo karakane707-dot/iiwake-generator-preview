@@ -123,3 +123,12 @@ body.reviewing #result{visibility:hidden}
 #crop-message{font-size:11px;line-height:1.4;margin:0;min-height:16px}
 #crop-dialog .crop-actions{margin:0;gap:8px}#crop-dialog .crop-actions button{min-height:48px;margin:0;padding:10px 6px;font-size:13px;justify-content:center}
 @media(max-height:450px){#crop-dialog .crop-inner{gap:4px}.crop-heading h2{font-size:15px}#crop-close{height:36px}#crop-message:empty{display:none}}
+
+/* 画面表示専用。canvasの1080×1920描画バッファは変更しない。 */
+#certificate-view{height:100vh;height:100dvh;height:var(--certificate-viewport,100dvh);max-height:1000px;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;padding: max(6px,env(safe-area-inset-top)) 0 max(6px,env(safe-area-inset-bottom));overflow:hidden;scroll-margin:0;min-width:0}
+#certificate-view .template-buttons{width:100%;max-width:540px;margin:0 auto;gap:4px}
+#certificate-view .template-buttons button{min-height:56px;padding:5px 1px}
+#certificate-stage{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;overflow:hidden}
+#certificate-view #certificate-canvas{width:auto;height:auto;max-width:100%;max-height:100%;margin:0;border:0;aspect-ratio:9/16;flex:none}
+#certificate-view .export-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;max-width:540px;margin:0 auto}
+#certificate-view .export-actions button{min-height:48px;margin:0;padding:8px 4px;font-size:12px;justify-content:center}

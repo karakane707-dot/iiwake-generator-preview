@@ -50,7 +50,7 @@ function tick(){
 function present(preview){if(!awaiting||finishing)return;previewReady=preview;clearTimeout(wait);tick();}
 function showPreview(preview){
  // 全画面を閉じる前に認定書へ移動し、途中のフォームを見せない。
- preview.scrollIntoView({block:'start',behavior:'auto'});preview.focus({preventScroll:true});$('review-effect').hidden=true;
+ if(root.IiwakeCertificateView)root.IiwakeCertificateView.present();else {preview.scrollIntoView({block:'start',behavior:'auto'});preview.focus({preventScroll:true});}$('review-effect').hidden=true;
  play(preview,[{opacity:.55},{opacity:1}],{duration:750,easing:'ease-out'});
 }
 for(const type of ['touchmove','wheel','keydown'])window.addEventListener(type,event=>{if(locked){event.preventDefault();return;}if(type!=='keydown')stop();},{passive:false});

@@ -43,7 +43,7 @@ $('fix-overflow').addEventListener('click',()=>{disclosure($('edit-toggle'),$('e
 let pendingPreview=false;
 globalThis.IiwakeCertificateUI.onReady=()=>{
  if(!pendingPreview)return;pendingPreview=false;
- const preview=$('certificate-canvas');if(globalThis.IiwakeMotion){globalThis.IiwakeMotion.present(preview);return;}preview.focus({preventScroll:true});
+ const preview=$('certificate-canvas');if(globalThis.IiwakeMotion){globalThis.IiwakeMotion.present(preview);return;}if(globalThis.IiwakeCertificateView){globalThis.IiwakeCertificateView.present();return;}preview.focus({preventScroll:true});
  preview.scrollIntoView({block:'start',behavior:reducedMotion()?'auto':'smooth'});
 };
 function beginGeneration(){
