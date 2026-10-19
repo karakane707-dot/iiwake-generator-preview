@@ -36,7 +36,7 @@ async function nativeShare(target='other'){
   await navigator.share(data);
   message(data.files?'共有メニューでの操作が終了しました。共有先で画像とURLをご確認ください。':'この環境では画像を添付できないため、文章とURLを共有しました。画像は別途保存できます。');
  }catch(error){
-  if(error.name==='AbortError')message('共有をキャンセルしました。');
+  if(error.name==='AbortError'){message('');$('share-text-only').hidden=true;}
   else if(data.files){message('画像付き共有を開始できませんでした。下の「文章とURLのみを共有」、または画像保存をご利用ください。');$('share-text-only').hidden=false;}
   else message('共有できませんでした。サイトURLのコピーをご利用ください。');
  }finally{busy=false;$('share-native').disabled=!blob;}
@@ -46,11 +46,14 @@ $('share-close').addEventListener('click',close);
 $('share-native').addEventListener('click',()=>nativeShare());
 $('share-dialog').addEventListener('close',()=>{if(!$('share-dialog').open)unlock();});
 $('share-dialog').addEventListener('cancel',e=>{e.preventDefault();close();});
-$('share-instagram').addEventListener('click',()=>{$('share-guide').textContent='共有メニューでInstagramを選び、選択肢があればストーリーズへ。表示されない場合は画像を保存してストーリーズで選択してください。リンクスタンプは自動追加されません。URLをコピーして手動で設定できます。';return nativeShare('instagram');});
-$('share-facebook').href='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(config.url);
-$('share-x').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(config.shareText)+'&url='+encodeURIComponent(config.url);
-$('share-facebook').addEventListener('click',()=>{$('share-guide').textContent='FacebookでサイトURLを共有します。認定書画像は自動添付されません。画像を保存して添付するか、端末標準共有をご利用ください。';});
-$('share-x').addEventListener('click',()=>{$('share-guide').textContent='Xの投稿画面に紹介文とURLを渡します。認定書画像は自動添付されません。画像を保存して投稿画面で添付するか、端末標準共有をご利用ください。';});
+$('share-instagram').addEventListener('click',()=>{
+ message('');$('share-save-area').hidden=false;
+ $('share-guide').textContent='①PNGを保存 ②Instagramでストーリーズを開き画像を選択 ③必要ならURLをコピーしリンクスタンプを手動追加。このサイトから画像付きストーリーズを直接起動する経路は利用していません。「その他のアプリで共有」も利用できますが、投稿先の指定は端末側で行います。';
+});
+function social(url,guide){message('');$('share-guide').textContent=guide;root.open(url,'_blank','noopener,noreferrer');}
+$('share-facebook').addEventListener('click',()=>social('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(config.url),'FacebookでサイトURLを共有します。画像は自動添付されません。画像を保存して追加するか「その他のアプリで共有」をご利用ください。'));
+$('share-x').addEventListener('click',()=>social('https://twitter.com/intent/tweet?text='+encodeURIComponent(config.shareText+'\n'+config.url),'Xの投稿画面に紹介文とURLを渡します。画像は保存して投稿画面に追加してください。'));
+$('share-line').addEventListener('click',()=>social('https://line.me/R/share?text='+encodeURIComponent(config.shareText+'\n'+config.url),'LINEに紹介文とURLを渡します。画像も送る場合は「その他のアプリで共有」でLINEを選ぶか、保存した画像をトークに追加してください。'));
 $('share-save').addEventListener('click',()=>{if(!blob)return;$('share-save-area').hidden=false;message('下のダウンロード、または画像の長押しで保存してください。');});
 $('share-text-only').addEventListener('click',async()=>{
  if(busy||!navigator.share)return;busy=true;

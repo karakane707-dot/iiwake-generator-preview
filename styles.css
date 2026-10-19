@@ -103,11 +103,23 @@ body.reviewing #result{visibility:hidden}
 #share-dialog [hidden]{display:none!important}
 .share-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.share-heading h2{font-size:21px;margin:0}
 #share-close{width:44px;height:44px;padding:0;border:1px solid #c9cccf;background:#fff;color:#18274f;font-size:26px;border-radius:4px}
-.share-socials{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.share-socials button,.share-socials a{box-sizing:border-box;min-width:0;min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 2px;border:1px solid #aeb8cd;border-radius:5px;background:#fff;color:#18274f;text-decoration:none;font-size:12px;font-weight:700;cursor:pointer}
+.share-socials{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.share-socials button{box-sizing:border-box;min-width:0;min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 2px;border:1px solid #aeb8cd;border-radius:5px;background:#fff;color:#18274f;text-decoration:none;font-size:clamp(10px,2.8vw,12px);font-weight:700;cursor:pointer}
 .share-socials svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7}#share-facebook svg{fill:currentColor;stroke:none}
 #share-native{width:100%;min-height:50px;margin:12px 0}
 .share-helpers{display:grid;grid-template-columns:1fr 1fr;gap:8px}.share-helpers button{min-height:48px;margin:0;padding:10px;font-size:14px}
 #share-dialog .help{font-size:12px;line-height:1.65;margin:12px 0}#share-status:empty{display:none}
 #share-preview{display:block;width:100%;height:auto;margin-top:12px;-webkit-touch-callout:default}
 #share-dialog a:focus-visible,#share-dialog button:focus-visible{outline:3px solid #ba763d;outline-offset:2px}
+
+/* 写真調整は可視領域に固定。写真だけを残りの高さに縮小する。 */
+#crop-dialog{position:fixed;inset:0;margin:auto;width:min(100%,520px);height:100vh;height:100dvh;height:var(--crop-viewport,100dvh);max-height:100%;padding:0;overflow:hidden;border:0}
+#crop-dialog .crop-inner{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:8px;padding: max(8px,env(safe-area-inset-top)) 12px max(8px,env(safe-area-inset-bottom));overflow:hidden}
+.crop-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.crop-heading h2{font-size:18px;margin:0}
+#crop-close{width:44px;height:44px;flex:none;border:1px solid #c9cccf;background:white;font-size:26px;color:#18274f}
+#crop-stage{min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none}
+#crop-canvas{flex:none;width:auto;height:auto;max-width:100%;max-height:100%;margin:0;aspect-ratio:86/110;touch-action:none}
+.crop-controls{min-height:0}.crop-controls label{font-size:12px}#crop-zoom{height:36px;min-height:36px;margin:0;padding:0}
+#crop-message{font-size:11px;line-height:1.4;margin:0;min-height:16px}
+#crop-dialog .crop-actions{margin:0;gap:8px}#crop-dialog .crop-actions button{min-height:48px;margin:0;padding:10px 6px;font-size:13px;justify-content:center}
+@media(max-height:450px){#crop-dialog .crop-inner{gap:4px}.crop-heading h2{font-size:15px}#crop-close{height:36px}#crop-message:empty{display:none}}
