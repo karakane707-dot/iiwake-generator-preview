@@ -165,3 +165,7 @@ body.reviewing #result{visibility:hidden}
 #social-guide .share-helpers button{min-width:0;font-size:12px;padding:9px 4px}
 #social-copy-status{color:#18573d;font-weight:700}#social-copy-status:empty{display:none}
 #share-url-copy{width:100%;font-size:14px;overflow-wrap:anywhere}
+
+#share-native{font-size:17px;min-height:54px;font-weight:700}
+#share-instagram-guide{width:100%;min-height:44px;margin-top:10px;font-size:12px;padding:10px;background:transparent}
+#share-copy{width:100%;min-height:44px}
