@@ -159,3 +159,9 @@ body.reviewing #result{visibility:hidden}
 #share-dialog:has(#instagram-guide:not([hidden])){padding:12px}
 #share-dialog:has(#instagram-guide:not([hidden])) .share-heading{margin-bottom:6px}
 #share-dialog:has(#instagram-guide:not([hidden])) .share-heading h2{font-size:19px}
+
+#social-guide h3{font-size:16px;margin:12px 0 8px}
+#social-native,#social-open,#social-back{width:100%;min-height:48px;margin:10px 0 0;font-size:13px;padding:10px}
+#social-guide .share-helpers button{min-width:0;font-size:12px;padding:9px 4px}
+#social-copy-status{color:#18573d;font-weight:700}#social-copy-status:empty{display:none}
+#share-url-copy{width:100%;font-size:14px;overflow-wrap:anywhere}
