@@ -40,34 +40,24 @@
 <button id="share-native" class="primary" type="button">その他のアプリで共有</button>
 <div class="share-helpers"><button id="share-save" class="secondary" type="button">画像を保存</button><button id="share-copy" class="secondary" type="button">URLをコピー</button></div>
 <p id="share-guide" class="help"></p></div>
-<section id="instagram-guide" aria-label="Instagram共有ガイド" hidden>
-<button id="ig-back" class="secondary" type="button">← 共有先に戻る</button>
+<section id="instagram-guide" aria-label="Instagramで共有する" hidden>
 <div id="ig-preparation">
-<h3>STEP 1　投稿の準備</h3>
-<p class="help">Instagramを開く前に、この2つを済ませましょう。</p>
-<div class="ig-prep-actions"><button id="ig-save" class="secondary" type="button">① 認定書画像を保存</button><button id="ig-copy" class="secondary" type="button">② サイトURLをコピー</button></div>
+<h3>STEP 1｜投稿の準備</h3>
+<div class="ig-prep-actions"><button id="ig-save" class="secondary" type="button"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg><span>① 画像を保存</span></button><button id="ig-copy" class="secondary" type="button"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M15 8V3H3v13h5"/></svg><span>② URLをコピー</span></button></div>
 <p id="ig-copy-status" class="help" role="status"></p>
-<p class="help">画像の保存完了はこのサイトでは確認できません。写真アプリ等でご確認ください。</p>
-<button id="ig-start-demo" class="primary" type="button">STEP 2　投稿方法をデモで見る →</button>
+<p class="ig-note">Instagramを開く前に準備。保存完了は写真アプリ等でご確認ください。</p>
 </div>
-<div id="ig-posting" hidden>
-<h3>STEP 2　Instagramで投稿する</h3>
-<p class="ig-demo-label">説明用デモ · 実際の投稿は行いません</p>
-<div id="ig-demo-0" class="ig-demo">
-<p class="ig-instruction">③ Instagramアプリでストーリーズを開く<br>④ 保存した認定書画像を選ぶ</p>
-<div class="ig-story-mock"><img id="ig-demo-image" alt="ストーリーズに認定書を配置した説明イメージ"><div class="ig-mock-toolbar"><span>×　Aa</span><span class="ig-sticker-icon" aria-label="スタンプアイコン"><svg aria-hidden="true" viewBox="0 0 32 32"><path d="M7 3h18a4 4 0 0 1 4 4v14l-8 8H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Z M21 29v-8h8 M10 18q6 6 12 0"/><circle cx="11" cy="11" r="1"/><circle cx="21" cy="11" r="1"/></svg></span></div><span class="ig-callout">⑤ スタンプはここ ↑</span></div>
-</div>
-<div id="ig-demo-1" class="ig-demo" hidden>
-<p class="ig-instruction">⑥ スタンプ一覧から「リンク」を選ぶ</p>
-<div class="ig-sticker-sheet" role="img" aria-label="スタンプ一覧の中のリンクが強調されている説明図"><div class="ig-search-mock">スタンプを検索</div><div class="ig-sticker-grid"><span>場所</span><span>@メンション</span><strong>🔗 リンク</strong><span>GIF</span><span>音楽</span><span>質問</span></div><p>↑ 鎖のアイコンが目印</p></div>
-</div>
-<div id="ig-demo-2" class="ig-demo" hidden>
-<p class="ig-instruction">⑦ コピーしたURLを貼り付ける<br>⑧ 完了 → 位置を決めて投稿する</p>
-<div class="ig-link-mock"><div class="ig-link-heading">リンクを追加 <strong>完了</strong></div><span>URL</span><div class="ig-url-mock">コピーしたURLをここに貼り付け ↓<small id="ig-demo-url"></small></div><p>完了をタップし、スタンプを配置</p><div class="ig-post-mock">ストーリーズに追加 →</div></div>
-</div>
-<nav class="ig-demo-nav" aria-label="説明デモのページ"><button id="ig-prev" class="secondary" type="button">前へ</button><span id="ig-page" aria-live="polite"></span><button id="ig-next" class="secondary" type="button">次へ</button></nav>
-<p class="help">画像の添付・リンクスタンプの設定はInstagramアプリで行います。画面やアイコンの位置はバージョンにより異なります。</p>
-<button id="ig-return-prep" class="secondary" type="button">← 画像保存・URLコピーに戻る</button>
-</div></section><p id="share-status" class="help" role="status"></p><button id="share-text-only" class="secondary" type="button" hidden>文章とURLのみを共有</button><input id="share-url-copy" aria-label="コピー用サイトURL" readonly hidden>
+<div id="ig-posting">
+<h3>STEP 2｜ストーリーズに投稿</h3>
+<p class="ig-note">Instagramでストーリーズを作成し、保存した認定書画像を選びます。</p>
+<p class="ig-demo-label">説明用モック · 自動投稿は行いません</p>
+<ol class="ig-demo-grid">
+<li><div class="ig-story-mock"><img id="ig-demo-image" alt="認定書を選んだストーリーズの説明図"><span class="ig-sticker-icon" aria-label="スタンプアイコン"><svg aria-hidden="true" viewBox="0 0 32 32"><path d="M7 3h18a4 4 0 0 1 4 4v14l-8 8H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Z M21 29v-8h8 M10 18q6 6 12 0"/><circle cx="11" cy="11" r="1"/><circle cx="21" cy="11" r="1"/></svg></span><span class="ig-callout">ここ ↑</span></div><div><strong>1　スタンプ</strong><p>顔付きの四角いアイコンをタップ。</p></div></li>
+<li><div class="ig-sticker-sheet" role="img" aria-label="スタンプ一覧からリンクを選ぶ説明図"><span>場所　音楽</span><strong>🔗 リンク</strong><span>GIF　質問</span></div><div><strong>2　リンク</strong><p>一覧から鎖のアイコンの「リンク」を選択。</p></div></li>
+<li><div class="ig-link-mock" role="img" aria-label="URL欄に貼り付けて完了する説明図"><span>URL</span><div>貼り付け ↓</div><strong>完了 → 投稿</strong></div><div><strong>3　URL貼り付け</strong><p>コピーしたURLを貼り付け、完了。スタンプを配置して投稿。</p></div></li>
+</ol>
+<p class="ig-note">画像選択・リンク設定はInstagramで手動操作します。実際の画面はバージョンにより異なります。</p>
+</div><button id="ig-back" class="secondary" type="button">共有先一覧に戻る</button>
+</section><p id="share-status" class="help" role="status"></p><button id="share-text-only" class="secondary" type="button" hidden>文章とURLのみを共有</button><input id="share-url-copy" aria-label="コピー用サイトURL" readonly hidden>
 <section id="share-save-area" hidden><a id="share-download" class="download-link" download>PNGをダウンロード</a><p class="help">保存できない場合は画像を長押ししてください。</p><img id="share-preview" alt="サイト名とURL付きの共有用認定書"></section></dialog>
 </body></html>
