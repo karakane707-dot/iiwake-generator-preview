@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 const config=root.IiwakeSite,$=id=>document.getElementById(id);
-let blob=null,number='',imageUrl='',busy=false,scrollState=null,demoPage=0;
+let blob=null,number='',imageUrl='',busy=false,scrollState=null;
 function message(text){$('share-status').textContent=text;}
 function clear(){blob=null;if(imageUrl)URL.revokeObjectURL(imageUrl);imageUrl='';$('share-preview').removeAttribute('src');$('ig-demo-image').removeAttribute('src');$('share-download').removeAttribute('href');$('share-native').disabled=true;}
 function prepare(source){
@@ -49,25 +49,11 @@ $('share-dialog').addEventListener('cancel',e=>{e.preventDefault();close();});
 function resetInstagram(){
  $('share-menu').hidden=false;$('instagram-guide').hidden=true;$('share-title').textContent='認定書を共有';$('ig-copy-status').textContent='';
 }
-function preparation(){
- $('ig-preparation').hidden=false;$('ig-posting').hidden=true;$('share-save-area').hidden=true;$('share-url-copy').hidden=true;message('');$('share-dialog').scrollTop=0;$('ig-save').focus({preventScroll:true});
-}
-function demo(page){
- demoPage=Math.max(0,Math.min(2,page));
- for(let i=0;i<3;i++)$('ig-demo-'+i).hidden=i!==demoPage;
- $('ig-page').textContent=(demoPage+1)+' / 3';$('ig-prev').disabled=demoPage===0;$('ig-next').disabled=demoPage===2;
-}
 $('share-instagram').addEventListener('click',()=>{
- $('share-menu').hidden=true;$('instagram-guide').hidden=false;$('share-title').textContent='Instagram共有ガイド';$('share-text-only').hidden=true;preparation();
+ $('share-menu').hidden=true;$('instagram-guide').hidden=false;$('share-title').textContent='Instagramで共有する';$('share-text-only').hidden=true;
+ $('share-save-area').hidden=true;$('share-url-copy').hidden=true;message('');$('share-dialog').scrollTop=0;$('ig-save').focus({preventScroll:true});
 });
 $('ig-back').addEventListener('click',()=>{resetInstagram();$('share-save-area').hidden=true;$('share-url-copy').hidden=true;message('');$('share-dialog').scrollTop=0;$('share-instagram').focus({preventScroll:true});});
-$('ig-start-demo').addEventListener('click',()=>{
- $('ig-preparation').hidden=true;$('ig-posting').hidden=false;$('share-save-area').hidden=true;$('share-url-copy').hidden=true;message('');demo(0);$('share-dialog').scrollTop=0;$('ig-next').focus({preventScroll:true});
-});
-$('ig-prev').addEventListener('click',()=>demo(demoPage-1));
-$('ig-next').addEventListener('click',()=>demo(demoPage+1));
-$('ig-return-prep').addEventListener('click',preparation);
-$('ig-demo-url').textContent=config.url;
 function social(url,guide){message('');$('share-guide').textContent=guide;root.open(url,'_blank','noopener,noreferrer');}
 $('share-facebook').addEventListener('click',()=>social('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(config.url),'FacebookでサイトURLを共有します。画像は自動添付されません。画像を保存して追加するか「その他のアプリで共有」をご利用ください。'));
 $('share-x').addEventListener('click',()=>social('https://twitter.com/intent/tweet?text='+encodeURIComponent(config.shareText+'\n'+config.url),'Xの投稿画面に紹介文とURLを渡します。画像は保存して投稿画面に追加してください。'));
